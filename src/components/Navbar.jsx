@@ -58,7 +58,10 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm }) => {
               <div className="avatar">
                 <User size={20} />
               </div>
-              <span className="user-name">{user?.name}</span>
+              <div className="user-info">
+                <span className="user-name">{user?.name}</span>
+                <span className="user-points">🏆 {user?.points || 0} pts</span>
+              </div>
               <button className="btn-icon" onClick={logout} title="Déconnexion">
                 <LogOut size={18} />
               </button>

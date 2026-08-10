@@ -6,6 +6,9 @@ import { StationsProvider } from './context/StationsContext';
 import { ThemeProvider } from './context/ThemeContext';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
+import { registerSW } from 'virtual:pwa-register';
+
+registerSW({ immediate: true });
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>

@@ -5,6 +5,8 @@ import { useGeolocation } from '../hooks/useGeolocation';
 import { useTheme } from '../context/ThemeContext';
 import { Locate } from 'lucide-react';
 import L from 'leaflet';
+import 'leaflet-routing-machine';
+import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 
 const createMarkerIcon = (status) => {
   const statusKey = status === 'available' ? 'available' : 
@@ -34,6 +36,40 @@ const ChangeView = ({ center, zoom }) => {
       map.flyTo(center, zoom, { duration: 1.5 });
     }
   }, [center, zoom, map]);
+  return null;
+};
+
+const RoutingControl = ({ start, end }) => {
+  const map = useMap();
+  
+  useEffect(() => {
+    if (!start || !end) return;
+
+    const routingControl = L.Routing.control({
+      waypoints: [
+        L.latLng(start.lat, start.lng),
+        L.latLng(end.lat, end.lng)
+      ],
+      routeWhileDragging: false,
+      showAlternatives: false,
+      show: false, // Hide the textual itinerary box
+      addWaypoints: false,
+      fitSelectedRoutes: true,
+      lineOptions: {
+        styles: [{ color: '#3B82F6', opacity: 0.8, weight: 5 }]
+      },
+      createMarker: () => null // Disable default markers for start/end
+    }).addTo(map);
+
+    return () => {
+      try {
+        map.removeControl(routingControl);
+      } catch (e) {
+        console.error(e);
+      }
+    };
+  }, [map, start, end]);
+
   return null;
 };
 
@@ -115,6 +151,13 @@ const MapView = () => {
 
         {selectedStation && (
           <ChangeView center={[selectedStation.lat, selectedStation.lng]} zoom={14} />
+        )}
+
+        {selectedStation && position && (
+          <RoutingControl 
+            start={position} 
+            end={{lat: selectedStation.lat, lng: selectedStation.lng}} 
+          />
         )}
       </MapContainer>
     </div>

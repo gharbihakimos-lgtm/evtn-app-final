@@ -3,6 +3,7 @@ import { mockStations } from '../data/mockStations';
 import { db, storage, isFirebaseConfigured } from '../config/firebase';
 import { collection, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { useAuth } from './AuthContext';
 
 const StationsContext = createContext();
 
@@ -16,6 +17,7 @@ export function StationsProvider({ children }) {
     status: '',
     searchQuery: '',
   });
+  const { addPoints } = useAuth();
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
@@ -58,6 +60,22 @@ export function StationsProvider({ children }) {
     setFilteredStations(result);
   }, [stations, filters]);
 
+  // Check for expired Check-ins
+  useEffect(() => {
+    const interval = setInterval(() => {
+      stations.forEach(station => {
+        if (station.status === 'busy' && station.busyUntil) {
+          if (new Date() > new Date(station.busyUntil)) {
+            // Expired! Revert to available
+            updateStationStatus(station.id, 'available', 'Système (Auto)', null);
+          }
+        }
+      });
+    }, 60000); // Check every minute
+
+    return () => clearInterval(interval);
+  }, [stations, updateStationStatus]);
+
   const addStation = useCallback(async (stationData, photoFile = null) => {
     let photoUrl = null;
 
@@ -85,17 +103,18 @@ export function StationsProvider({ children }) {
     if (!isFirebaseConfigured) {
       newStation.id = Math.random().toString(36).substring(2, 9);
       if (photoFile) {
-        // Fallback for local mock (creates a local object URL for preview)
         newStation.photos = [URL.createObjectURL(photoFile)];
       }
       setStations(prev => [...prev, newStation]);
+      addPoints?.(10);
       return;
     }
     
     await addDoc(collection(db, 'stations'), newStation);
-  }, []);
+    if (addPoints) await addPoints(10); // Award 10 points for adding a station
+  }, [addPoints]);
 
-  const updateStationStatus = useCallback(async (stationId, newStatus, userName) => {
+  const updateStationStatus = useCallback(async (stationId, newStatus, userName, busyUntil = null) => {
     if (!isFirebaseConfigured) {
       setStations(prev => prev.map(s => {
         if (s.id === stationId) {
@@ -104,6 +123,7 @@ export function StationsProvider({ children }) {
             status: newStatus,
             lastUpdate: new Date().toISOString(),
             updatedBy: userName,
+            busyUntil
           };
         }
         return s;
@@ -111,28 +131,59 @@ export function StationsProvider({ children }) {
       return;
     }
 
-    const stationRef = doc(db, 'stations', stationId);
-    await updateDoc(stationRef, {
+    const updateData = {
       status: newStatus,
       lastUpdate: new Date().toISOString(),
       updatedBy: userName
-    });
+    };
+    if (busyUntil !== undefined) {
+      updateData.busyUntil = busyUntil;
+    }
+
+    const stationRef = doc(db, 'stations', stationId);
+    await updateDoc(stationRef, updateData);
   }, []);
 
-  const addReview = useCallback((stationId, review) => {
-    setStations(prev => prev.map(s => {
-      if (s.id === stationId) {
-        const newReviewCount = s.reviewCount + 1;
-        const newRating = ((s.rating * s.reviewCount) + review.rating) / newReviewCount;
-        return {
-          ...s,
-          rating: newRating,
-          reviewCount: newReviewCount,
-        };
-      }
-      return s;
-    }));
-  }, []);
+  const addReview = useCallback(async (stationId, review) => {
+    if (!isFirebaseConfigured) {
+      setStations(prev => prev.map(s => {
+        if (s.id === stationId) {
+          const newReviewCount = (s.reviewCount || 0) + 1;
+          const newRating = (((s.rating || 0) * (s.reviewCount || 0)) + review.rating) / newReviewCount;
+          return {
+            ...s,
+            rating: newRating,
+            reviewCount: newReviewCount,
+          };
+        }
+        return s;
+      }));
+      if (addPoints) addPoints(5);
+      return;
+    }
+
+    // Save review to Firestore
+    const reviewData = {
+      ...review,
+      stationId,
+      createdAt: new Date().toISOString()
+    };
+    await addDoc(collection(db, 'reviews'), reviewData);
+
+    // Update station average
+    const station = stations.find(s => s.id === stationId);
+    if (station) {
+      const newReviewCount = (station.reviewCount || 0) + 1;
+      const newRating = (((station.rating || 0) * (station.reviewCount || 0)) + review.rating) / newReviewCount;
+      const stationRef = doc(db, 'stations', stationId);
+      await updateDoc(stationRef, {
+        rating: newRating,
+        reviewCount: newReviewCount
+      });
+    }
+    
+    if (addPoints) addPoints(5); // Award 5 points for a review
+  }, [stations, addPoints]);
 
   return (
     <StationsContext.Provider value={{

@@ -634,6 +634,29 @@ body {
 .info-item .value.price {
   color: var(--primary);
 }
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-card);
+  padding: 0.25rem 1rem 0.25rem 0.25rem;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+}
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+.user-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  line-height: 1.2;
+}
+.user-points {
+  font-size: 0.75rem;
+  color: var(--primary);
+  font-weight: 700;
+}
 .connectors-list-large {
   display: flex;
   flex-wrap: wrap;

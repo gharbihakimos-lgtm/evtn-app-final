@@ -1,11 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { auth, isFirebaseConfigured } from '../config/firebase';
+import { auth, db, isFirebaseConfigured } from '../config/firebase';
+import { doc, getDoc, setDoc, updateDoc, increment } from 'firebase/firestore';
 import { 
   createUserWithEmailAndPassword, 
   signInWithEmailAndPassword, 
   signOut, 
   onAuthStateChanged,
-  updateProfile
+  updateProfile,
+  signInWithPopup,
+  GoogleAuthProvider
 } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -26,12 +29,23 @@ export function AuthProvider({ children }) {
       return;
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
+        let points = 0;
+        if (isFirebaseConfigured) {
+          const userRef = doc(db, 'users', currentUser.uid);
+          const userSnap = await getDoc(userRef);
+          if (userSnap.exists()) {
+            points = userSnap.data().points || 0;
+          } else {
+            await setDoc(userRef, { points: 0, name: currentUser.displayName || currentUser.email.split('@')[0], email: currentUser.email });
+          }
+        }
         setUser({
           id: currentUser.uid,
           name: currentUser.displayName || currentUser.email.split('@')[0],
-          email: currentUser.email
+          email: currentUser.email,
+          points
         });
         setIsAuthenticated(true);
       } else {
@@ -68,6 +82,18 @@ export function AuthProvider({ children }) {
     setUser(prev => ({ ...prev, name }));
   };
 
+  const loginWithGoogle = async () => {
+    if (!isFirebaseConfigured) {
+      const mockUser = { id: 'mock-google', name: 'Google User', email: 'google@example.com' };
+      setUser(mockUser);
+      setIsAuthenticated(true);
+      localStorage.setItem('evtn_user', JSON.stringify(mockUser));
+      return;
+    }
+    const provider = new GoogleAuthProvider();
+    await signInWithPopup(auth, provider);
+  };
+
   const logout = async () => {
     if (!isFirebaseConfigured) {
       setUser(null);
@@ -78,8 +104,18 @@ export function AuthProvider({ children }) {
     await signOut(auth);
   };
 
+  const addPoints = async (amount) => {
+    if (!user) return;
+    const newPoints = (user.points || 0) + amount;
+    setUser(prev => ({ ...prev, points: newPoints }));
+    if (isFirebaseConfigured) {
+      const userRef = doc(db, 'users', user.id);
+      await updateDoc(userRef, { points: increment(amount) });
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isAuthenticated, login, signup, logout, addPoints, loginWithGoogle }}>
       {!loading && children}
     </AuthContext.Provider>
   );

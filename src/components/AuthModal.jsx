@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { X } from 'lucide-react';
 
 const AuthModal = ({ isOpen, onClose }) => {
-  const { login, signup } = useAuth();
+  const { login, signup, loginWithGoogle } = useAuth();
   const [activeTab, setActiveTab] = useState('login'); // 'login' or 'signup'
   const [error, setError] = useState('');
   
@@ -42,9 +42,13 @@ const AuthModal = ({ isOpen, onClose }) => {
     }
   };
 
-  const handleGoogleLogin = () => {
-    login('google_mock@example.com', 'password123');
-    onClose();
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Erreur lors de la connexion avec Google.');
+    }
   };
 
   return (
