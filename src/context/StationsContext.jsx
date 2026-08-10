@@ -60,6 +60,36 @@ export function StationsProvider({ children }) {
     setFilteredStations(result);
   }, [stations, filters]);
 
+  const updateStationStatus = useCallback(async (stationId, newStatus, userName, busyUntil = null) => {
+    if (!isFirebaseConfigured) {
+      setStations(prev => prev.map(s => {
+        if (s.id === stationId) {
+          return {
+            ...s,
+            status: newStatus,
+            lastUpdate: new Date().toISOString(),
+            updatedBy: userName,
+            busyUntil
+          };
+        }
+        return s;
+      }));
+      return;
+    }
+
+    const updateData = {
+      status: newStatus,
+      lastUpdate: new Date().toISOString(),
+      updatedBy: userName
+    };
+    if (busyUntil !== undefined) {
+      updateData.busyUntil = busyUntil;
+    }
+
+    const stationRef = doc(db, 'stations', stationId);
+    await updateDoc(stationRef, updateData);
+  }, []);
+
   // Check for expired Check-ins
   useEffect(() => {
     const interval = setInterval(() => {
@@ -114,35 +144,6 @@ export function StationsProvider({ children }) {
     if (addPoints) await addPoints(10); // Award 10 points for adding a station
   }, [addPoints]);
 
-  const updateStationStatus = useCallback(async (stationId, newStatus, userName, busyUntil = null) => {
-    if (!isFirebaseConfigured) {
-      setStations(prev => prev.map(s => {
-        if (s.id === stationId) {
-          return {
-            ...s,
-            status: newStatus,
-            lastUpdate: new Date().toISOString(),
-            updatedBy: userName,
-            busyUntil
-          };
-        }
-        return s;
-      }));
-      return;
-    }
-
-    const updateData = {
-      status: newStatus,
-      lastUpdate: new Date().toISOString(),
-      updatedBy: userName
-    };
-    if (busyUntil !== undefined) {
-      updateData.busyUntil = busyUntil;
-    }
-
-    const stationRef = doc(db, 'stations', stationId);
-    await updateDoc(stationRef, updateData);
-  }, []);
 
   const addReview = useCallback(async (stationId, review) => {
     if (!isFirebaseConfigured) {
