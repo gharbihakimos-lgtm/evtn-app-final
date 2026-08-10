@@ -3,15 +3,18 @@ import ReactDOM from 'react-dom/client';
 import App from './App.jsx';
 import { AuthProvider } from './context/AuthContext';
 import { StationsProvider } from './context/StationsContext';
+import { ThemeProvider } from './context/ThemeContext';
 import 'leaflet/dist/leaflet.css';
 import './index.css';
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <AuthProvider>
-      <StationsProvider>
-        <App />
-      </StationsProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <StationsProvider>
+          <App />
+        </StationsProvider>
+      </AuthProvider>
+    </ThemeProvider>
   </React.StrictMode>,
 );

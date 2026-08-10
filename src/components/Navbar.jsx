@@ -1,11 +1,13 @@
 import React from 'react';
-import { Zap, Search, User, LogOut, Plus } from 'lucide-react';
+import { Zap, Search, User, LogOut, Plus, Moon, Sun } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
+import { useTheme } from '../context/ThemeContext';
 
 const Navbar = ({ onOpenAuthModal, onOpenStationForm }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { stations, filters, setFilters } = useStations();
+  const { theme, toggleTheme } = useTheme();
 
   const handleSearchChange = (e) => {
     setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
@@ -38,6 +40,10 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm }) => {
       </div>
 
       <div className="navbar-actions">
+        <button className="btn-icon" onClick={toggleTheme} title="Changer le thème" style={{ marginRight: '0.5rem' }}>
+          {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+        </button>
+
         <button 
           className="btn-primary" 
           onClick={isAuthenticated ? onOpenStationForm : onOpenAuthModal}

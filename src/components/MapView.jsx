@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import { useStations } from '../context/StationsContext';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { useTheme } from '../context/ThemeContext';
 import { Locate } from 'lucide-react';
 import L from 'leaflet';
 
@@ -65,6 +66,7 @@ const LocateMeControl = ({ position }) => {
 const MapView = () => {
   const { filteredStations, selectedStation, setSelectedStation } = useStations();
   const { position } = useGeolocation();
+  const { theme } = useTheme();
 
   const center = [36.8, 10.18];
   const zoom = 7;
@@ -74,7 +76,9 @@ const MapView = () => {
       <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }} zoomControl={false}>
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          url={theme === 'dark' 
+            ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+            : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"}
         />
         <ZoomControl position="bottomright" />
         <LocateMeControl position={position} />

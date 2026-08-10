@@ -23,6 +23,21 @@
   --border: rgba(16, 185, 129, 0.15);
 }
 
+[data-theme='light'] {
+  --bg-main: #F3F4F6;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F9FAFB;
+  --bg-sidebar: #FFFFFF;
+  --bg-navbar: rgba(255, 255, 255, 0.85);
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(16, 185, 129, 0.2);
+  --text-main: #111827;
+  --text-muted: #374151;
+  --text-secondary: #065F46;
+  --text-dim: #6B7280;
+  --border: rgba(16, 185, 129, 0.2);
+}
+
 * {
   margin: 0;
   padding: 0;
