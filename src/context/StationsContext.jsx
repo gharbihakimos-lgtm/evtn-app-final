@@ -22,13 +22,19 @@ export function StationsProvider({ children }) {
   useEffect(() => {
     if (!isFirebaseConfigured) return;
     
-    const unsubscribe = onSnapshot(collection(db, 'stations'), (snapshot) => {
-      const stationsData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-      setStations(stationsData);
-    });
+    const unsubscribe = onSnapshot(collection(db, 'stations'), 
+      (snapshot) => {
+        const stationsData = snapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setStations(stationsData);
+      },
+      (error) => {
+        console.error("Firestore onSnapshot error:", error);
+        // Fallback or just ignore so the app doesn't crash
+      }
+    );
 
     return () => unsubscribe();
   }, []);

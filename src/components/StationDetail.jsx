@@ -26,15 +26,20 @@ const StationDetail = () => {
       // Fetch reviews
       if (isFirebaseConfigured) {
         const fetchReviews = async () => {
-          const q = query(collection(db, 'reviews'), where('stationId', '==', selectedStation.id));
-          const querySnapshot = await getDocs(q);
-          const revs = [];
-          querySnapshot.forEach((doc) => {
-            revs.push({ id: doc.id, ...doc.data() });
-          });
-          // Sort client side because we might need an index if we order by in query
-          revs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-          setReviews(revs);
+          try {
+            const q = query(collection(db, 'reviews'), where('stationId', '==', selectedStation.id));
+            const querySnapshot = await getDocs(q);
+            const revs = [];
+            querySnapshot.forEach((doc) => {
+              revs.push({ id: doc.id, ...doc.data() });
+            });
+            // Sort client side because we might need an index if we order by in query
+            revs.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            setReviews(revs);
+          } catch (error) {
+            console.error("Firestore reviews error:", error);
+            setReviews([]);
+          }
         };
         fetchReviews();
       } else {
