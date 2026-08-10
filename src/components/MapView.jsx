@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, ZoomControl } from 'react-leaflet';
 import { useStations } from '../context/StationsContext';
 import { useGeolocation } from '../hooks/useGeolocation';
+import { Locate } from 'lucide-react';
 import L from 'leaflet';
 
 const createMarkerIcon = (status) => {
@@ -35,6 +36,32 @@ const ChangeView = ({ center, zoom }) => {
   return null;
 };
 
+const LocateMeControl = ({ position }) => {
+  const map = useMap();
+  
+  const handleLocate = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (position) {
+      map.flyTo([position.lat, position.lng], 14, { duration: 1.5 });
+    }
+  };
+
+  return (
+    <div className="leaflet-bottom leaflet-right" style={{ bottom: '80px', right: '10px', position: 'absolute', zIndex: 1000 }}>
+      <div className="leaflet-control leaflet-bar">
+        <button 
+          onClick={handleLocate}
+          style={{ width: '34px', height: '34px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg-card)', border: 'none', color: 'var(--text-main)', cursor: 'pointer', borderBottom: '1px solid var(--border)' }}
+          title="Me localiser"
+        >
+          <Locate size={18} />
+        </button>
+      </div>
+    </div>
+  );
+};
+
 const MapView = () => {
   const { filteredStations, selectedStation, setSelectedStation } = useStations();
   const { position } = useGeolocation();
@@ -49,6 +76,8 @@ const MapView = () => {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
+        <ZoomControl position="bottomright" />
+        <LocateMeControl position={position} />
         
         {position && (
           <Marker position={[position.lat, position.lng]} icon={userLocationIcon}>
