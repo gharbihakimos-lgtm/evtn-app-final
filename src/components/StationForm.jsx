@@ -20,7 +20,9 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
     price: initialData?.price || 'Gratuit',
     operator: initialData?.operator || '',
     openHours: initialData?.openHours || '24/7',
-    description: initialData?.description || ''
+    description: initialData?.description || '',
+    reference: initialData?.reference || '',
+    isSmart: initialData?.isSmart || false
   });
 
   const [photoFile, setPhotoFile] = useState(null);
@@ -41,7 +43,9 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
         price: initialData?.price || 'Gratuit',
         operator: initialData?.operator || '',
         openHours: initialData?.openHours || '24/7',
-        description: initialData?.description || ''
+        description: initialData?.description || '',
+        reference: initialData?.reference || '',
+        isSmart: initialData?.isSmart || false
       });
       setPhotoPreview(initialData?.photos?.[0] || '');
       setPhotoFile(null);
@@ -78,6 +82,8 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
           ? [...prev.connectors, value]
           : prev.connectors.filter(c => c !== value)
       }));
+    } else if (name === 'isSmart') {
+      setFormData(prev => ({ ...prev, isSmart: checked }));
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
@@ -204,6 +210,16 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
           <div className="form-group">
             <label>Opérateur</label>
             <input type="text" name="operator" value={formData.operator} onChange={handleChange} />
+          </div>
+          
+          <div className="form-group">
+            <label>Référence (Optionnel)</label>
+            <input type="text" name="reference" value={formData.reference} onChange={handleChange} placeholder="ex: FR*CHG*E12345" />
+          </div>
+
+          <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>
+            <input type="checkbox" id="isSmart" name="isSmart" checked={formData.isSmart} onChange={handleChange} />
+            <label htmlFor="isSmart" style={{ margin: 0 }}>Borne connectée (OCPP / Temps réel)</label>
           </div>
 
           <div className="form-group">

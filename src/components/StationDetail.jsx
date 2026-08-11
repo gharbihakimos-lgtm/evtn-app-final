@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { X, MapPin, Zap, Star, Clock, Building2, Banknote, Plug, Navigation, Heart } from 'lucide-react';
+import { X, MapPin, Zap, Star, Clock, Building2, Banknote, Plug, Navigation, Heart, Wifi, Hash } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
 import { db, storage, isFirebaseConfigured } from '../config/firebase';
@@ -138,7 +138,14 @@ const StationDetail = () => {
 
         <div className="detail-header">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <h2>{station.name}</h2>
+            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {station.name}
+              {station.isSmart && (
+                <span title="Borne connectée en temps réel (OCPP)" style={{ color: 'var(--primary)', display: 'flex', alignItems: 'center', background: 'rgba(16, 185, 129, 0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.7rem', gap: '0.2rem' }}>
+                  <Wifi size={14} /> Connectée
+                </span>
+              )}
+            </h2>
             {user && (
               <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                 <button 
@@ -235,6 +242,15 @@ const StationDetail = () => {
                 <span className="value price">{station.price}</span>
               </div>
             </div>
+            {station.reference && (
+              <div className="info-item">
+                <Hash size={18} />
+                <div>
+                  <span className="label">Référence</span>
+                  <span className="value">{station.reference}</span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

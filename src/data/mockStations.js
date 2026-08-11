@@ -258,6 +258,8 @@ export const mockStations = [
     updatedBy: 'System',
     description: 'Ceci est une borne de test générée automatiquement pour vérifier les fonctionnalités.',
     photos: [],
+    reference: 'TEST-EVTN-01',
+    isSmart: true
   }
 ];
 
