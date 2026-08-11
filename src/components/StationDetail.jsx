@@ -186,28 +186,31 @@ const StationDetail = () => {
             <span>Y aller (GPS)</span>
           </a>
           
-          {isAuthenticated && station.status === 'available' && (
+          {isAuthenticated && (
             <button 
               className="btn-primary"
-              style={{ flex: 1, justifyContent: 'center', padding: '0.8rem', background: 'var(--primary)' }}
-              onClick={() => setShowCheckIn(!showCheckIn)}
+              style={{ 
+                flex: 1, 
+                justifyContent: 'center', 
+                padding: '0.8rem', 
+                background: station.status === 'available' ? 'var(--primary)' : 'var(--bg-secondary)',
+                color: station.status === 'available' ? 'white' : 'var(--text-main)',
+                border: station.status === 'available' ? 'none' : '1px solid var(--border)'
+              }}
+              onClick={() => {
+                if (station.status === 'available') {
+                  handleStatusUpdate('busy');
+                  if (addPoints) addPoints(2);
+                } else if (station.status === 'busy') {
+                  handleStatusUpdate('available');
+                }
+              }}
             >
               <Plug size={18} />
-              <span>Je me branche</span>
+              <span>{station.status === 'available' ? 'Je me branche' : 'Je me débranche'}</span>
             </button>
           )}
         </div>
-
-        {showCheckIn && (
-          <div className="checkin-menu" style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-            <p style={{ width: '100%', margin: '0 0 0.5rem', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>
-              Combien de temps allez-vous rester ?
-            </p>
-            <button className="btn-secondary" onClick={() => handleCheckIn(30)}>30 min</button>
-            <button className="btn-secondary" onClick={() => handleCheckIn(60)}>1 h</button>
-            <button className="btn-secondary" onClick={() => handleCheckIn(120)}>2 h</button>
-          </div>
-        )}
 
         <div className="detail-section">
           <h3>Informations</h3>
