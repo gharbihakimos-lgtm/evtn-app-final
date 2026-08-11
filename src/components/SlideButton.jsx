@@ -23,7 +23,7 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
     setDragX(newX);
     
     // Trigger confirm when reached the end (95% threshold to make it easier)
-    if (newX >= maxDrag * 0.95) {
+    if (newX >= maxDrag * 0.90) {
       setIsDragging(false);
       setDragX(0); // Reset position immediately
       onConfirm();
@@ -36,22 +36,39 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => handleDragMove(e.clientX);
-    const handleTouchMove = (e) => handleDragMove(e.touches[0].clientX);
-    const handleMouseUp = handleDragEnd;
+    const handleMove = (e) => {
+      let clientX;
+      if (e.type.includes('touch')) {
+        clientX = e.touches[0].clientX;
+        // e.preventDefault(); // Cannot do this if passive is true, but we bound it manually below
+      } else {
+        clientX = e.clientX;
+      }
+      handleDragMove(clientX);
+    };
+
+    const handleTouchMoveObj = (e) => {
+      // Prevent scrolling while dragging the slider
+      if (e.cancelable) e.preventDefault();
+      handleMove(e);
+    };
+
+    const handleUp = () => handleDragEnd();
 
     if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('touchmove', handleTouchMove, { passive: false });
-      window.addEventListener('mouseup', handleMouseUp);
-      window.addEventListener('touchend', handleMouseUp);
+      window.addEventListener('mousemove', handleMove);
+      window.addEventListener('touchmove', handleTouchMoveObj, { passive: false });
+      window.addEventListener('mouseup', handleUp);
+      window.addEventListener('touchend', handleUp);
+      window.addEventListener('touchcancel', handleUp);
     }
 
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchend', handleMouseUp);
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('touchmove', handleTouchMoveObj);
+      window.removeEventListener('mouseup', handleUp);
+      window.removeEventListener('touchend', handleUp);
+      window.removeEventListener('touchcancel', handleUp);
     };
   }, [isDragging]);
 
