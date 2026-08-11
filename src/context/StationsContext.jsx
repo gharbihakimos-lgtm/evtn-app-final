@@ -16,8 +16,10 @@ export function StationsProvider({ children }) {
     connectorType: '',
     status: '',
     searchQuery: '',
+    favoritesOnly: false,
+    compatibleOnly: false,
   });
-  const { addPoints } = useAuth();
+  const { addPoints, user } = useAuth();
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
@@ -63,8 +65,20 @@ export function StationsProvider({ children }) {
       );
     }
 
+    if (filters.favoritesOnly && user && user.favorites) {
+      result = result.filter(s => user.favorites.includes(s.id));
+    }
+
+    if (filters.compatibleOnly && user && user.vehicle && user.vehicle.connectors) {
+      result = result.filter(s => {
+        if (!s.connectors || s.connectors.length === 0) return true;
+        // Check if any of the station's connectors are in the user's vehicle connectors
+        return s.connectors.some(c => user.vehicle.connectors.includes(c));
+      });
+    }
+
     setFilteredStations(result);
-  }, [stations, filters]);
+  }, [stations, filters, user]);
 
   const updateStationStatus = useCallback(async (stationId, newStatus, userName, busyUntil = null) => {
     if (!isFirebaseConfigured) {
@@ -200,6 +214,27 @@ export function StationsProvider({ children }) {
     if (addPoints) addPoints(5); // Award 5 points for a review
   }, [stations, addPoints]);
 
+  const getAdminStats = useCallback(async () => {
+    if (!isFirebaseConfigured) {
+      return { totalStations: stations.length, totalUsers: 1, totalReviews: 0 };
+    }
+    try {
+      // In a real app we'd use aggregations, but for this demo we'll fetch docs.
+      const stationsSnap = await import('firebase/firestore').then(m => m.getDocs(collection(db, 'stations')));
+      const usersSnap = await import('firebase/firestore').then(m => m.getDocs(collection(db, 'users')));
+      const reviewsSnap = await import('firebase/firestore').then(m => m.getDocs(collection(db, 'reviews')));
+      
+      return {
+        totalStations: stationsSnap.size,
+        totalUsers: usersSnap.size,
+        totalReviews: reviewsSnap.size
+      };
+    } catch (err) {
+      console.error("Admin stats error:", err);
+      return { totalStations: 0, totalUsers: 0, totalReviews: 0 };
+    }
+  }, [stations]);
+
   return (
     <StationsContext.Provider value={{
       stations,
@@ -210,7 +245,8 @@ export function StationsProvider({ children }) {
       setFilters,
       addStation,
       updateStationStatus,
-      addReview
+      addReview,
+      getAdminStats
     }}>
       {children}
     </StationsContext.Provider>

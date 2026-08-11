@@ -1,10 +1,10 @@
 import React from 'react';
-import { Zap, Search, User, LogOut, Plus, Moon, Sun } from 'lucide-react';
+import { Zap, Search, User, LogOut, Plus, Moon, Sun, Settings } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
 import { useTheme } from '../context/ThemeContext';
 
-const Navbar = ({ onOpenAuthModal, onOpenStationForm }) => {
+const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { stations, filters, setFilters } = useStations();
   const { theme, toggleTheme } = useTheme();
@@ -54,15 +54,22 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm }) => {
         
         <div className="user-section">
           {isAuthenticated ? (
-            <div className="user-profile">
-              <div className="avatar">
-                <User size={20} />
+            <div className="user-profile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {user?.isAdmin && (
+                <button className="btn-secondary" onClick={onOpenAdmin} style={{ padding: '0.4rem 0.75rem' }}>
+                  <Settings size={16} style={{ marginRight: '0.25rem', verticalAlign: 'text-bottom' }} /> Admin
+                </button>
+              )}
+              <div className="user-profile clickable" onClick={onOpenProfile} style={{ cursor: 'pointer' }}>
+                <div className="avatar">
+                  <User size={20} />
+                </div>
+                <div className="user-info">
+                  <span className="user-name">{user?.name}</span>
+                  <span className="user-points">🏆 {user?.points || 0} pts</span>
+                </div>
               </div>
-              <div className="user-info">
-                <span className="user-name">{user?.name}</span>
-                <span className="user-points">🏆 {user?.points || 0} pts</span>
-              </div>
-              <button className="btn-icon" onClick={logout} title="Déconnexion">
+              <button className="btn-icon" onClick={(e) => { e.stopPropagation(); logout(); }} title="Déconnexion">
                 <LogOut size={18} />
               </button>
             </div>

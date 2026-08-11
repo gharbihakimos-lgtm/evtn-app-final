@@ -1,19 +1,21 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { X, MapPin, Zap, Star, Clock, Building2, Banknote, Plug, Navigation } from 'lucide-react';
+import { X, MapPin, Zap, Star, Clock, Building2, Banknote, Plug, Navigation, Heart } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
-import { db, isFirebaseConfigured } from '../config/firebase';
+import { db, storage, isFirebaseConfigured } from '../config/firebase';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { formatDate, formatPower, getStatusLabel } from '../utils/helpers';
 
 const StationDetail = () => {
-  const { user, isAuthenticated, addPoints } = useAuth();
+  const { user, isAuthenticated, addPoints, toggleFavorite } = useAuth();
   const { selectedStation, setSelectedStation, updateStationStatus, addReview } = useStations();
   const panelRef = useRef(null);
   const [showCheckIn, setShowCheckIn] = useState(false);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -52,6 +54,7 @@ const StationDetail = () => {
   if (!selectedStation) return null;
 
   const station = selectedStation;
+  const isFavorite = user?.favorites?.includes(station.id);
 
   const handleStatusUpdate = (newStatus) => {
     updateStationStatus(station.id, newStatus, user?.name || 'Anonyme');
@@ -70,11 +73,19 @@ const StationDetail = () => {
     
     setIsSubmittingReview(true);
     try {
+      let photoUrl = null;
+      if (photoFile && storage) {
+        const fileRef = ref(storage, `reviews/${Date.now()}_${photoFile.name}`);
+        await uploadBytes(fileRef, photoFile);
+        photoUrl = await getDownloadURL(fileRef);
+      }
+
       const reviewData = {
         rating: newReview.rating,
         comment: newReview.comment,
         userName: user?.name || 'Anonyme',
-        userId: user?.id || 'mock-id'
+        userId: user?.id || 'mock-id',
+        ...(photoUrl && { photoUrl })
       };
       
       await addReview(station.id, reviewData);
@@ -82,6 +93,7 @@ const StationDetail = () => {
       // Add to local state to update UI immediately
       setReviews(prev => [{...reviewData, createdAt: new Date().toISOString(), id: Math.random().toString()}, ...prev]);
       setNewReview({ rating: 5, comment: '' });
+      setPhotoFile(null);
     } finally {
       setIsSubmittingReview(false);
     }
@@ -122,7 +134,25 @@ const StationDetail = () => {
         )}
 
         <div className="detail-header">
-          <h2>{station.name}</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <h2>{station.name}</h2>
+            {user && (
+              <button 
+                className="favorite-btn"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (toggleFavorite) toggleFavorite(station.id);
+                }}
+                style={{ marginLeft: '1rem' }}
+              >
+                <Heart 
+                  size={24} 
+                  fill={isFavorite ? '#ef4444' : 'none'} 
+                  color={isFavorite ? '#ef4444' : 'var(--text-muted)'} 
+                />
+              </button>
+            )}
+          </div>
           <div className="address-line">
             <MapPin size={16} />
             <span>{station.address}, {station.city}</span>
@@ -236,7 +266,12 @@ const StationDetail = () => {
                     <strong>{rev.userName}</strong>
                     <div style={{ display: 'flex' }}>{renderStars(rev.rating)}</div>
                   </div>
-                  <p style={{ margin: 0, fontSize: '0.9rem' }}>{rev.comment}</p>
+                  <p style={{ margin: 0, fontSize: '0.9rem', marginBottom: rev.photoUrl ? '0.5rem' : '0' }}>{rev.comment}</p>
+                  {rev.photoUrl && (
+                    <a href={rev.photoUrl} target="_blank" rel="noopener noreferrer" style={{ display: 'block', marginBottom: '0.5rem' }}>
+                      <img src={rev.photoUrl} alt="Avis" className="review-photo" />
+                    </a>
+                  )}
                   <span style={{ fontSize: '0.7rem', color: 'var(--text-secondary)' }}>{formatDate(rev.createdAt)}</span>
                 </div>
               ))
@@ -256,6 +291,14 @@ const StationDetail = () => {
                 style={{ width: '100%', padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--border)', background: 'var(--bg-main)', color: 'var(--text-main)', marginBottom: '0.5rem', resize: 'vertical' }}
                 required
               />
+              <div style={{ marginBottom: '1rem' }}>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  onChange={(e) => setPhotoFile(e.target.files[0])}
+                  style={{ color: 'var(--text-main)', fontSize: '0.85rem' }}
+                />
+              </div>
               <button type="submit" className="btn-primary" disabled={isSubmittingReview} style={{ width: '100%', justifyContent: 'center' }}>
                 {isSubmittingReview ? 'Envoi...' : 'Publier'}
               </button>
