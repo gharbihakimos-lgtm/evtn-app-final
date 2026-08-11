@@ -238,6 +238,26 @@ export const mockStations = [
     updatedBy: 'Nizar Z.',
     description: 'Borne rapide en centre-ville, à côté de la jarre.',
     photos: [],
+  },
+  {
+    id: 'test-1',
+    name: 'Borne Test (Antigravity)',
+    address: 'Laboratoire de test, Tunis',
+    city: 'Tunis',
+    lat: 36.8,
+    lng: 10.18,
+    power: 150,
+    connectors: ['CCS', 'Type 2'],
+    status: 'available',
+    price: 'Gratuit',
+    operator: 'Admin',
+    openHours: '24/7',
+    rating: 5.0,
+    reviewCount: 1,
+    lastUpdate: new Date().toISOString(),
+    updatedBy: 'System',
+    description: 'Ceci est une borne de test générée automatiquement pour vérifier les fonctionnalités.',
+    photos: [],
   }
 ];
 
