@@ -4,12 +4,12 @@ import { useAuth } from '../context/AuthContext';
 import StationCard from './StationCard';
 import { MapPinOff, Star, Car } from 'lucide-react';
 
-const Sidebar = () => {
+const Sidebar = ({ onOpenLegal }) => {
   const { filteredStations, selectedStation, setSelectedStation, filters, setFilters } = useStations();
   const { user } = useAuth();
 
   return (
-    <div className="sidebar">
+    <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div className="sidebar-header">
         <h2>⚡ Bornes</h2>
         <span className="count">{filteredStations?.length || 0}</span>
@@ -32,7 +32,7 @@ const Sidebar = () => {
         )}
       </div>
       
-      <div className="station-list">
+      <div className="station-list" style={{ flex: 1, overflowY: 'auto' }}>
         {filteredStations && filteredStations.length > 0 ? (
           filteredStations.map(station => (
             <StationCard 
@@ -49,6 +49,18 @@ const Sidebar = () => {
             <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>Essayez de modifier vos filtres</span>
           </div>
         )}
+      </div>
+
+      <div className="sidebar-footer" style={{ padding: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: '0.8rem' }}>
+        <button 
+          onClick={onOpenLegal} 
+          style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', textDecoration: 'underline' }}
+        >
+          Mentions Légales & Confidentialité
+        </button>
+        <div style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>
+          © 2026 EVTN - Tous droits réservés
+        </div>
       </div>
     </div>
   );

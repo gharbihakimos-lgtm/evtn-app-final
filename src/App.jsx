@@ -9,11 +9,13 @@ import StationForm from './components/StationForm';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
 import AdminPage from './components/AdminPage';
+import LegalModal from './components/LegalModal';
 
 function App() {
   const [showStationForm, setShowStationForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [showLegal, setShowLegal] = useState(false);
   const [currentView, setCurrentView] = useState('app'); // 'app' or 'admin'
   const { isAuthenticated } = useAuth();
 
@@ -39,7 +41,7 @@ function App() {
       />
       <FilterBar />
       <div className="app-container">
-        <Sidebar />
+        <Sidebar onOpenLegal={() => setShowLegal(true)} />
         <MapView />
       </div>
 
@@ -58,6 +60,11 @@ function App() {
       <UserProfileModal
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
+      />
+
+      <LegalModal
+        isOpen={showLegal}
+        onClose={() => setShowLegal(false)}
       />
     </div>
   );
