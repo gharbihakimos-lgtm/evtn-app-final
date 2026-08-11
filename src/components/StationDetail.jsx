@@ -6,6 +6,7 @@ import { db, storage, isFirebaseConfigured } from '../config/firebase';
 import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { formatDate, formatPower, getStatusLabel } from '../utils/helpers';
+import StationForm from './StationForm';
 
 const StationDetail = () => {
   const { user, isAuthenticated, addPoints, toggleFavorite } = useAuth();
@@ -16,6 +17,7 @@ const StationDetail = () => {
   const [newReview, setNewReview] = useState({ rating: 5, comment: '' });
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     const handleClick = (e) => {
@@ -137,20 +139,29 @@ const StationDetail = () => {
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <h2>{station.name}</h2>
             {user && (
-              <button 
-                className="favorite-btn"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (toggleFavorite) toggleFavorite(station.id);
-                }}
-                style={{ marginLeft: '1rem' }}
-              >
-                <Heart 
-                  size={24} 
-                  fill={isFavorite ? '#ef4444' : 'none'} 
-                  color={isFavorite ? '#ef4444' : 'var(--text-muted)'} 
-                />
-              </button>
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button 
+                  className="favorite-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (toggleFavorite) toggleFavorite(station.id);
+                  }}
+                  title="Ajouter aux favoris"
+                >
+                  <Heart 
+                    size={24} 
+                    fill={isFavorite ? '#ef4444' : 'none'} 
+                    color={isFavorite ? '#ef4444' : 'var(--text-muted)'} 
+                  />
+                </button>
+                <button
+                  className="btn-secondary"
+                  style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
+                  onClick={() => setIsEditing(true)}
+                >
+                  Corriger
+                </button>
+              </div>
             )}
           </div>
           <div className="address-line">
@@ -333,6 +344,11 @@ const StationDetail = () => {
           {station.updatedBy && ` par ${station.updatedBy}`}
         </div>
       </div>
+      <StationForm 
+        isOpen={isEditing} 
+        onClose={() => setIsEditing(false)} 
+        initialData={station} 
+      />
     </div>
   );
 };

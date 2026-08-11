@@ -168,6 +168,46 @@ export function StationsProvider({ children }) {
     if (addPoints) await addPoints(10); // Award 10 points for adding a station
   }, [addPoints]);
 
+  const editStation = useCallback(async (stationId, stationData, photoFile = null) => {
+    let photoUrl = null;
+
+    if (photoFile && isFirebaseConfigured) {
+      try {
+        const fileExt = photoFile.name.split('.').pop();
+        const fileName = `station_${Date.now()}.${fileExt}`;
+        const storageRef = ref(storage, `stations/${fileName}`);
+        await uploadBytes(storageRef, photoFile);
+        photoUrl = await getDownloadURL(storageRef);
+      } catch (err) {
+        console.error("Erreur lors de l'upload de la photo :", err);
+      }
+    }
+
+    const updatedStation = {
+      ...stationData,
+      lastUpdate: new Date().toISOString()
+    };
+
+    if (photoUrl) {
+      updatedStation.photos = [photoUrl]; // or append if we supported multiple
+    }
+
+    if (!isFirebaseConfigured) {
+      if (photoFile) {
+        updatedStation.photos = [URL.createObjectURL(photoFile)];
+      }
+      setStations(prev => prev.map(s => s.id === stationId ? { ...s, ...updatedStation } : s));
+      return;
+    }
+
+    const stationRef = doc(db, 'stations', stationId);
+    try {
+      await updateDoc(stationRef, updatedStation);
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
+
 
   const addReview = useCallback(async (stationId, review) => {
     if (!isFirebaseConfigured) {
@@ -244,6 +284,7 @@ export function StationsProvider({ children }) {
       setSelectedStation,
       setFilters,
       addStation,
+      editStation,
       updateStationStatus,
       addReview,
       getAdminStats

@@ -6,25 +6,48 @@ import { X, MapPin, Camera } from 'lucide-react';
 
 const CITIES = ['Tunis', 'Sfax', 'Sousse', 'Bizerte', 'Nabeul', 'Ariana', 'Gabès'];
 
-const StationForm = ({ isOpen, onClose }) => {
-  const { addStation } = useStations();
+const StationForm = ({ isOpen, onClose, initialData = null }) => {
+  const { addStation, editStation } = useStations();
   const [formData, setFormData] = useState({
-    name: '',
-    address: '',
-    city: 'Tunis',
-    lat: '',
-    lng: '',
-    power: POWER_OPTIONS?.[0] || '22',
-    connectors: [],
-    status: 'available',
-    price: 'Gratuit',
-    operator: '',
-    openHours: '24/7',
-    description: ''
+    name: initialData?.name || '',
+    address: initialData?.address || '',
+    city: initialData?.city || 'Tunis',
+    lat: initialData?.lat || '',
+    lng: initialData?.lng || '',
+    power: initialData?.power || POWER_OPTIONS?.[0] || '22',
+    connectors: initialData?.connectors || [],
+    status: initialData?.status || 'available',
+    price: initialData?.price || 'Gratuit',
+    operator: initialData?.operator || '',
+    openHours: initialData?.openHours || '24/7',
+    description: initialData?.description || ''
   });
 
   const [photoFile, setPhotoFile] = useState(null);
-  const [photoPreview, setPhotoPreview] = useState('');
+  const [photoPreview, setPhotoPreview] = useState(initialData?.photos?.[0] || '');
+
+  // Reset form when modal opens with new initialData
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        name: initialData?.name || '',
+        address: initialData?.address || '',
+        city: initialData?.city || 'Tunis',
+        lat: initialData?.lat || '',
+        lng: initialData?.lng || '',
+        power: initialData?.power || POWER_OPTIONS?.[0] || '22',
+        connectors: initialData?.connectors || [],
+        status: initialData?.status || 'available',
+        price: initialData?.price || 'Gratuit',
+        operator: initialData?.operator || '',
+        openHours: initialData?.openHours || '24/7',
+        description: initialData?.description || ''
+      });
+      setPhotoPreview(initialData?.photos?.[0] || '');
+      setPhotoFile(null);
+      setError('');
+    }
+  }, [isOpen, initialData]);
   const [error, setError] = useState('');
   const { position, loading } = useGeolocation();
 
@@ -74,7 +97,11 @@ const StationForm = ({ isOpen, onClose }) => {
       power: parseFloat(formData.power),
     };
     
-    addStation(newStation, photoFile);
+    if (initialData) {
+      editStation(initialData.id, newStation, photoFile);
+    } else {
+      addStation(newStation, photoFile);
+    }
     
     // Reset form after submit
     setPhotoFile(null);
@@ -86,7 +113,7 @@ const StationForm = ({ isOpen, onClose }) => {
     <div className="modal-overlay">
       <div className="modal station-form">
         <button className="btn-close" onClick={onClose}><X size={20} /></button>
-        <h2>Ajouter une nouvelle borne</h2>
+        <h2>{initialData ? 'Modifier la borne' : 'Ajouter une nouvelle borne'}</h2>
         
         {error && <div className="error-message">{error}</div>}
         
@@ -186,7 +213,7 @@ const StationForm = ({ isOpen, onClose }) => {
 
           <div className="form-actions">
             <button type="button" className="btn-secondary" onClick={onClose}>Annuler</button>
-            <button type="submit" className="btn-primary">Ajouter</button>
+            <button type="submit" className="btn-primary">{initialData ? 'Enregistrer' : 'Ajouter'}</button>
           </div>
         </form>
       </div>
