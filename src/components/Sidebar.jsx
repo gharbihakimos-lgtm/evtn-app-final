@@ -1,7 +1,7 @@
 import React from 'react';
 import { useStations } from '../context/StationsContext';
 import StationCard from './StationCard';
-import { MapPinOff, Zap } from 'lucide-react';
+import { MapPinOff } from 'lucide-react';
 
 const Sidebar = () => {
   const { filteredStations, selectedStation, setSelectedStation } = useStations();

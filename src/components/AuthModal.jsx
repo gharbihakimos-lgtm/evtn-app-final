@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { X } from 'lucide-react';
 
@@ -51,9 +51,17 @@ const AuthModal = ({ isOpen, onClose }) => {
     }
   };
 
+  useEffect(() => {
+    if (isOpen) {
+      setError('');
+      setFormData({ name: '', email: '', password: '', confirmPassword: '' });
+      setActiveTab('login');
+    }
+  }, [isOpen]);
+
   return (
-    <div className="modal-overlay">
-      <div className="modal auth-modal">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal auth-modal" onClick={(e) => e.stopPropagation()}>
         <button className="btn-close" onClick={onClose}><X size={20} /></button>
         
         <div className="auth-tabs">

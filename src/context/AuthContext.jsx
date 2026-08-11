@@ -8,7 +8,8 @@ import {
   onAuthStateChanged,
   updateProfile,
   signInWithRedirect,
-  GoogleAuthProvider
+  GoogleAuthProvider,
+  getRedirectResult
 } from 'firebase/auth';
 
 const AuthContext = createContext();
@@ -22,38 +23,52 @@ export function AuthProvider({ children }) {
     if (!isFirebaseConfigured) {
       const storedUser = localStorage.getItem('evtn_user');
       if (storedUser) {
-        setUser(JSON.parse(storedUser));
-        setIsAuthenticated(true);
+        try {
+          setUser(JSON.parse(storedUser));
+          setIsAuthenticated(true);
+        } catch (e) {
+          setUser(null);
+        }
       }
       setLoading(false);
       return;
     }
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (currentUser) {
-        let points = 0;
-        if (isFirebaseConfigured) {
-          const userRef = doc(db, 'users', currentUser.uid);
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            points = userSnap.data().points || 0;
-          } else {
-            await setDoc(userRef, { points: 0, name: currentUser.displayName || currentUser.email.split('@')[0], email: currentUser.email });
+      try {
+        if (currentUser) {
+          let points = 0;
+          if (isFirebaseConfigured) {
+            const userRef = doc(db, 'users', currentUser.uid);
+            const userSnap = await getDoc(userRef);
+            if (userSnap.exists()) {
+              points = userSnap.data().points || 0;
+            } else {
+              await setDoc(userRef, { points: 0, name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Utilisateur', email: currentUser.email });
+            }
           }
+          setUser({
+            id: currentUser.uid,
+            name: currentUser.displayName || currentUser.email?.split('@')[0] || 'Utilisateur',
+            email: currentUser.email,
+            points
+          });
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
         }
-        setUser({
-          id: currentUser.uid,
-          name: currentUser.displayName || currentUser.email.split('@')[0],
-          email: currentUser.email,
-          points
-        });
-        setIsAuthenticated(true);
-      } else {
-        setUser(null);
-        setIsAuthenticated(false);
+      } catch (err) {
+        console.error(err);
       }
       setLoading(false);
     });
+
+    if (isFirebaseConfigured) {
+      getRedirectResult(auth).catch((error) => {
+        console.error('Google redirect error:', error);
+      });
+    }
 
     return () => unsubscribe();
   }, []);

@@ -47,7 +47,7 @@ export function StationsProvider({ children }) {
     }
 
     if (filters.connectorType) {
-      result = result.filter(s => s.connectors.includes(filters.connectorType));
+      result = result.filter(s => s.connectors?.includes(filters.connectorType));
     }
 
     if (filters.status) {
@@ -57,9 +57,9 @@ export function StationsProvider({ children }) {
     if (filters.searchQuery) {
       const q = filters.searchQuery.toLowerCase();
       result = result.filter(s => 
-        s.name.toLowerCase().includes(q) || 
-        s.address.toLowerCase().includes(q) ||
-        s.city.toLowerCase().includes(q)
+        (s.name || '').toLowerCase().includes(q) || 
+        (s.address || '').toLowerCase().includes(q) ||
+        (s.city || '').toLowerCase().includes(q)
       );
     }
 
@@ -93,7 +93,11 @@ export function StationsProvider({ children }) {
     }
 
     const stationRef = doc(db, 'stations', stationId);
-    await updateDoc(stationRef, updateData);
+    try {
+      await updateDoc(stationRef, updateData);
+    } catch (err) {
+      console.error(err);
+    }
   }, []);
 
   // Check for expired Check-ins
@@ -183,10 +187,14 @@ export function StationsProvider({ children }) {
       const newReviewCount = (station.reviewCount || 0) + 1;
       const newRating = (((station.rating || 0) * (station.reviewCount || 0)) + review.rating) / newReviewCount;
       const stationRef = doc(db, 'stations', stationId);
-      await updateDoc(stationRef, {
-        rating: newRating,
-        reviewCount: newReviewCount
-      });
+      try {
+        await updateDoc(stationRef, {
+          rating: newRating,
+          reviewCount: newReviewCount
+        });
+      } catch (err) {
+        console.error(err);
+      }
     }
     
     if (addPoints) addPoints(5); // Award 5 points for a review

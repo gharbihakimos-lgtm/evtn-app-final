@@ -61,6 +61,10 @@ const RoutingControl = ({ start, end }) => {
       createMarker: () => null // Disable default markers for start/end
     }).addTo(map);
 
+    routingControl.on('routingerror', (e) => {
+      console.error('Routing error:', e.error);
+    });
+
     return () => {
       try {
         map.removeControl(routingControl);
@@ -68,7 +72,7 @@ const RoutingControl = ({ start, end }) => {
         console.error(e);
       }
     };
-  }, [map, start, end]);
+  }, [map, start?.lat, start?.lng, end?.lat, end?.lng]);
 
   return null;
 };

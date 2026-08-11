@@ -69,22 +69,25 @@ const StationDetail = () => {
     if (!newReview.comment.trim()) return;
     
     setIsSubmittingReview(true);
-    const reviewData = {
-      rating: newReview.rating,
-      comment: newReview.comment,
-      userName: user?.name || 'Anonyme',
-      userId: user?.id || 'mock-id'
-    };
-    
-    await addReview(station.id, reviewData);
-    
-    // Add to local state to update UI immediately
-    setReviews(prev => [{...reviewData, createdAt: new Date().toISOString(), id: Math.random().toString()}, ...prev]);
-    setNewReview({ rating: 5, comment: '' });
-    setIsSubmittingReview(false);
+    try {
+      const reviewData = {
+        rating: newReview.rating,
+        comment: newReview.comment,
+        userName: user?.name || 'Anonyme',
+        userId: user?.id || 'mock-id'
+      };
+      
+      await addReview(station.id, reviewData);
+      
+      // Add to local state to update UI immediately
+      setReviews(prev => [{...reviewData, createdAt: new Date().toISOString(), id: Math.random().toString()}, ...prev]);
+      setNewReview({ rating: 5, comment: '' });
+    } finally {
+      setIsSubmittingReview(false);
+    }
   };
 
-  const renderStars = (rating, interactive = false, currentRating = 0, setRating = null) => {
+  const renderStars = (rating, interactive = false, setRating = null) => {
     const stars = [];
     const fullStars = Math.floor(rating);
     for (let i = 0; i < 5; i++) {
@@ -202,7 +205,7 @@ const StationDetail = () => {
         <div className="detail-section">
           <h3>Connecteurs</h3>
           <div className="connectors-list-large">
-            {station.connectors.map(conn => (
+            {(station.connectors || []).map(conn => (
               <span key={conn} className="connector-tag-large">
                 <Plug size={14} /> {conn}
               </span>
@@ -244,7 +247,7 @@ const StationDetail = () => {
             <form onSubmit={handleReviewSubmit} style={{ marginTop: '1rem', background: 'var(--bg-secondary)', padding: '1rem', borderRadius: '8px' }}>
               <h4 style={{ margin: '0 0 0.5rem' }}>Laissez un avis</h4>
               <div style={{ display: 'flex', gap: '0.2rem', marginBottom: '0.5rem' }}>
-                {renderStars(newReview.rating, true, newReview.rating, (rating) => setNewReview(prev => ({...prev, rating})))}
+                {renderStars(newReview.rating, true, (rating) => setNewReview(prev => ({...prev, rating})))}
               </div>
               <textarea 
                 placeholder="Partagez votre expérience..."

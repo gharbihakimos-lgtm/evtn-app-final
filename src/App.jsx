@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useAuth } from './context/AuthContext';
-import { useStations } from './context/StationsContext';
 import Navbar from './components/Navbar';
 import FilterBar from './components/FilterBar';
 import Sidebar from './components/Sidebar';

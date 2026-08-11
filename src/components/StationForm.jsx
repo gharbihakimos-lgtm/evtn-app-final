@@ -16,7 +16,7 @@ const StationForm = ({ isOpen, onClose }) => {
     lng: '',
     power: POWER_OPTIONS?.[0] || '22',
     connectors: [],
-    status: 'Disponible',
+    status: 'available',
     price: 'Gratuit',
     operator: '',
     openHours: '24/7',
@@ -44,6 +44,7 @@ const StationForm = ({ isOpen, onClose }) => {
     const { name, value, type, checked, files } = e.target;
     if (type === 'file') {
       if (files && files[0]) {
+        if (photoPreview) URL.revokeObjectURL(photoPreview);
         setPhotoFile(files[0]);
         setPhotoPreview(URL.createObjectURL(files[0]));
       }
@@ -70,7 +71,7 @@ const StationForm = ({ isOpen, onClose }) => {
       ...formData,
       lat: parseFloat(formData.lat),
       lng: parseFloat(formData.lng),
-      power: parseInt(formData.power, 10),
+      power: parseFloat(formData.power),
     };
     
     addStation(newStation, photoFile);
@@ -162,9 +163,9 @@ const StationForm = ({ isOpen, onClose }) => {
             <div className="form-group">
               <label>Statut</label>
               <select name="status" value={formData.status} onChange={handleChange}>
-                <option value="Disponible">Disponible</option>
-                <option value="Occupée">Occupée</option>
-                <option value="Hors service">Hors service</option>
+                <option value="available">Disponible</option>
+                <option value="busy">Occupée</option>
+                <option value="offline">Hors service</option>
               </select>
             </div>
             <div className="form-group">

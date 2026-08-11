@@ -23,7 +23,7 @@ const StationCard = ({ station, onClick, isSelected }) => {
       </div>
 
       <div className="connectors-list">
-        {station.connectors.map(conn => (
+        {(station.connectors || []).map(conn => (
           <span key={conn} className="connector-tag">{conn}</span>
         ))}
       </div>

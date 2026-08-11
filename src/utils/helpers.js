@@ -4,6 +4,7 @@ export function formatDistance(meters) {
 }
 
 export function formatDate(isoString) {
+  if (!isoString) return 'Date inconnue';
   const date = new Date(isoString);
   const now = new Date();
   const diffInSeconds = Math.floor((now - date) / 1000);
@@ -27,6 +28,7 @@ export function formatDate(isoString) {
 }
 
 export function formatPower(kw) {
+  if (kw == null) return 'N/A';
   return kw >= 50 ? `${kw} kW DC` : `${kw} kW AC`;
 }
 
