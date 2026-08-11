@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { mockStations } from '../data/mockStations';
 import { db, storage, isFirebaseConfigured } from '../config/firebase';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './AuthContext';
 
@@ -294,9 +294,9 @@ export function StationsProvider({ children }) {
     }
     try {
       // In a real app we'd use aggregations, but for this demo we'll fetch docs.
-      const stationsSnap = await import('firebase/firestore').then(m => m.getDocs(collection(db, 'stations')));
-      const usersSnap = await import('firebase/firestore').then(m => m.getDocs(collection(db, 'users')));
-      const reviewsSnap = await import('firebase/firestore').then(m => m.getDocs(collection(db, 'reviews')));
+      const stationsSnap = await getDocs(collection(db, 'stations'));
+      const usersSnap = await getDocs(collection(db, 'users'));
+      const reviewsSnap = await getDocs(collection(db, 'reviews'));
       
       return {
         totalStations: stationsSnap.size,
