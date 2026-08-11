@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { mockStations } from '../data/mockStations';
 import { db, storage, isFirebaseConfigured } from '../config/firebase';
-import { collection, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './AuthContext';
 
@@ -208,6 +208,19 @@ export function StationsProvider({ children }) {
     }
   }, []);
 
+  const deleteStation = useCallback(async (stationId) => {
+    if (!isFirebaseConfigured) {
+      setStations(prev => prev.filter(s => s.id !== stationId));
+      return;
+    }
+    try {
+      const stationRef = doc(db, 'stations', stationId);
+      await deleteDoc(stationRef);
+    } catch (err) {
+      console.error("Erreur suppression:", err);
+    }
+  }, []);
+
 
   const addReview = useCallback(async (stationId, review) => {
     if (!isFirebaseConfigured) {
@@ -285,6 +298,7 @@ export function StationsProvider({ children }) {
       setFilters,
       addStation,
       editStation,
+      deleteStation,
       updateStationStatus,
       addReview,
       getAdminStats

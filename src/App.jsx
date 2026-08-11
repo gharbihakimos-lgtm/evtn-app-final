@@ -8,13 +8,13 @@ import StationDetail from './components/StationDetail';
 import StationForm from './components/StationForm';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
-import AdminDashboard from './components/AdminDashboard';
+import AdminPage from './components/AdminPage';
 
 function App() {
   const [showStationForm, setShowStationForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const [showAdmin, setShowAdmin] = useState(false);
+  const [currentView, setCurrentView] = useState('app'); // 'app' or 'admin'
   const { isAuthenticated } = useAuth();
 
   const handleAddStation = () => {
@@ -25,13 +25,17 @@ function App() {
     }
   };
 
+  if (currentView === 'admin') {
+    return <AdminPage onExit={() => setCurrentView('app')} />;
+  }
+
   return (
     <div className="app">
       <Navbar
         onOpenStationForm={handleAddStation}
         onOpenAuthModal={() => setShowAuthModal(true)}
         onOpenProfile={() => setShowProfile(true)}
-        onOpenAdmin={() => setShowAdmin(true)}
+        onOpenAdmin={() => setCurrentView('admin')}
       />
       <FilterBar />
       <div className="app-container">
@@ -54,11 +58,6 @@ function App() {
       <UserProfileModal
         isOpen={showProfile}
         onClose={() => setShowProfile(false)}
-      />
-
-      <AdminDashboard
-        isOpen={showAdmin}
-        onClose={() => setShowAdmin(false)}
       />
     </div>
   );

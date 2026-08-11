@@ -148,17 +148,16 @@ export function AuthProvider({ children }) {
   };
 
   const toggleFavorite = async (stationId) => {
-    if (!user) return;
-    const isFavorite = user.favorites?.includes(stationId);
-    const newFavorites = isFavorite 
-      ? user.favorites.filter(id => id !== stationId)
-      : [...(user.favorites || []), stationId];
-    
-    setUser(prev => ({ ...prev, favorites: newFavorites }));
-    
-    if (isFirebaseConfigured) {
-      const userRef = doc(db, 'users', user.id);
-      await updateDoc(userRef, { favorites: newFavorites });
+    if (!isAuthenticated || !user) return;
+    try {
+      const isFav = user.favorites?.includes(stationId);
+      const newFavorites = isFav 
+        ? user.favorites.filter(id => id !== stationId)
+        : [...(user.favorites || []), stationId];
+      
+      await updateUserProfile({ favorites: newFavorites });
+    } catch (err) {
+      console.error(err);
     }
   };
 
@@ -169,6 +168,34 @@ export function AuthProvider({ children }) {
     if (isFirebaseConfigured) {
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, data);
+    }
+  };
+
+  const getAllUsers = async () => {
+    if (!isFirebaseConfigured) {
+      // Mock data if no firebase
+      return [
+        { id: '1', name: 'John Doe', email: 'john@example.com', points: 150, isAdmin: true },
+        { id: '2', name: 'Jane Smith', email: 'jane@example.com', points: 80, isAdmin: false }
+      ];
+    }
+    try {
+      const q = query(collection(db, 'users'), orderBy('name', 'asc'));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    } catch (e) {
+      console.error("Error fetching all users:", e);
+      return [];
+    }
+  };
+
+  const updateUserRole = async (userId, isAdmin) => {
+    if (!isFirebaseConfigured) return;
+    try {
+      const userRef = doc(db, 'users', userId);
+      await updateDoc(userRef, { isAdmin });
+    } catch (e) {
+      console.error("Error updating user role:", e);
     }
   };
 
@@ -195,7 +222,9 @@ export function AuthProvider({ children }) {
       loginWithGoogle,
       toggleFavorite,
       updateUserProfile,
-      getLeaderboard
+      getLeaderboard,
+      getAllUsers,
+      updateUserRole
     }}>
       {!loading && children}
     </AuthContext.Provider>
