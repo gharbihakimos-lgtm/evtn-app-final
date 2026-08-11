@@ -7,6 +7,7 @@ import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { formatDate, formatPower, getStatusLabel } from '../utils/helpers';
 import StationForm from './StationForm';
+import SlideButton from './SlideButton';
 
 const StationDetail = () => {
   const { user, isAuthenticated, addPoints, toggleFavorite } = useAuth();
@@ -174,30 +175,24 @@ const StationDetail = () => {
           {getStatusLabel(station.status)}
         </div>
 
-        <div className="action-buttons-row" style={{ marginTop: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+        <div className="action-buttons-row" style={{ marginTop: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', display: 'flex', gap: '0.5rem' }}>
           <a 
             href={`https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`} 
             target="_blank" 
             rel="noopener noreferrer"
             className="btn-primary"
-            style={{ flex: 1, justifyContent: 'center', padding: '0.8rem' }}
+            style={{ flex: 1, justifyContent: 'center', padding: '0.8rem', minWidth: '150px' }}
           >
             <Navigation size={18} />
             <span>Y aller (GPS)</span>
           </a>
           
           {isAuthenticated && (
-            <button 
-              className="btn-primary"
-              style={{ 
-                flex: 1, 
-                justifyContent: 'center', 
-                padding: '0.8rem', 
-                background: station.status === 'available' ? 'var(--primary)' : 'var(--bg-secondary)',
-                color: station.status === 'available' ? 'white' : 'var(--text-main)',
-                border: station.status === 'available' ? 'none' : '1px solid var(--border)'
-              }}
-              onClick={() => {
+            <SlideButton
+              active={station.status === 'busy'}
+              text={station.status === 'available' ? 'Glissez pour brancher ➔' : 'Glissez pour débrancher ➔'}
+              icon={Plug}
+              onConfirm={() => {
                 if (station.status === 'available') {
                   handleStatusUpdate('busy');
                   if (addPoints) addPoints(2);
@@ -205,10 +200,7 @@ const StationDetail = () => {
                   handleStatusUpdate('available');
                 }
               }}
-            >
-              <Plug size={18} />
-              <span>{station.status === 'available' ? 'Je me branche' : 'Je me débranche'}</span>
-            </button>
+            />
           )}
         </div>
 
