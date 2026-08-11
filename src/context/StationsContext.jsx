@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { mockStations } from '../data/mockStations';
 import { db, storage, isFirebaseConfigured } from '../config/firebase';
-import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './AuthContext';
 
@@ -30,7 +30,20 @@ export function StationsProvider({ children }) {
           id: doc.id,
           ...doc.data()
         }));
-        setStations(stationsData);
+        if (stationsData.length === 0 && !window.hasSeeded) {
+          window.hasSeeded = true;
+          mockStations.forEach(async (station) => {
+            try {
+              const docRef = doc(db, 'stations', station.id);
+              await setDoc(docRef, station);
+            } catch (err) {
+              console.error("Error seeding station", err);
+            }
+          });
+          setStations(mockStations); // Optimistic UI
+        } else {
+          setStations(stationsData);
+        }
       },
       (error) => {
         console.error("Firestore onSnapshot error:", error);
