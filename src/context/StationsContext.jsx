@@ -26,10 +26,18 @@ export function StationsProvider({ children }) {
     
     const unsubscribe = onSnapshot(collection(db, 'stations'), 
       (snapshot) => {
-        const stationsData = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
+        const stationsData = snapshot.docs.map(doc => {
+          const data = doc.data();
+          let normalizedStatus = data.status;
+          if (normalizedStatus === 'Disponible') normalizedStatus = 'available';
+          if (normalizedStatus === 'Occupée') normalizedStatus = 'busy';
+          if (normalizedStatus === 'Hors service') normalizedStatus = 'offline';
+          return {
+            id: doc.id,
+            ...data,
+            status: normalizedStatus
+          };
+        });
         if (stationsData.length === 0 && !window.hasSeeded) {
           window.hasSeeded = true;
           mockStations.forEach(async (station) => {
