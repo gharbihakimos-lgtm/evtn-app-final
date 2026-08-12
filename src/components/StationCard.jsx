@@ -18,6 +18,7 @@ const StationCard = ({ station, onClick, isSelected }) => {
           <div className="title-info">
             <h3>{station.name}</h3>
             <span className="city"><MapPin size={11} /> {station.city}</span>
+            {station.reference && <span className="city" style={{ marginTop: '2px', color: 'var(--text-muted)' }}>Réf: {station.reference}</span>}
           </div>
         </div>
         <div className="power-badge">

@@ -172,9 +172,16 @@ const StationDetail = () => {
               </div>
             )}
           </div>
-          <div className="address-line">
-            <MapPin size={16} />
-            <span>{station.address}, {station.city}</span>
+          <div className="address-line" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <MapPin size={16} />
+              <span>{station.address}, {station.city}</span>
+            </div>
+            {station.reference && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--text-muted)', fontSize: '0.85rem', marginLeft: '1.4rem' }}>
+                <span>Réf: {station.reference}</span>
+              </div>
+            )}
           </div>
         </div>
 

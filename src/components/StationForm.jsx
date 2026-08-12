@@ -149,6 +149,11 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
             <label>Nom de la station *</label>
             <input type="text" name="name" value={formData.name} onChange={handleChange} required />
           </div>
+
+          <div className="form-group">
+            <label>Référence de la borne (optionnel)</label>
+            <input type="text" name="reference" value={formData.reference || ''} onChange={handleChange} placeholder="Ex: EVTN-001" />
+          </div>
           
           <div className="form-group">
             <label>Adresse *</label>
