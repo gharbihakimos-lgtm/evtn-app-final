@@ -194,21 +194,19 @@ const StationDetail = () => {
             <span>Y aller (GPS)</span>
           </a>
           
-          {isAuthenticated && (
-            <SlideButton
-              active={station.status === 'busy'}
-              text={station.status === 'available' ? 'Glissez pour brancher ➔' : 'Glissez pour débrancher ➔'}
-              icon={Plug}
-              onConfirm={() => {
-                if (station.status === 'available') {
-                  handleStatusUpdate('busy');
-                  if (addPoints) addPoints(2);
-                } else if (station.status === 'busy') {
-                  handleStatusUpdate('available');
-                }
-              }}
-            />
-          )}
+          <SlideButton
+            active={station.status === 'busy'}
+            text={station.status === 'available' ? 'Glissez pour brancher ➔' : 'Glissez pour débrancher ➔'}
+            icon={Plug}
+            onConfirm={() => {
+              if (station.status === 'available') {
+                handleStatusUpdate('busy');
+                if (isAuthenticated && addPoints) addPoints(2);
+              } else if (station.status === 'busy') {
+                handleStatusUpdate('available');
+              }
+            }}
+          />
         </div>
 
         <div className="detail-section">
