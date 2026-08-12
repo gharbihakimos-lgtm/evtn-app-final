@@ -337,15 +337,18 @@ const StationDetail = () => {
               <button 
                 className={`btn-status-update disponible ${station.status === 'available' ? 'active' : ''}`}
                 onClick={() => handleStatusUpdate('available')}
-              >🟢 Disponible</button>
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}
+              ><div className="status-dot available" style={{ margin: 0 }}></div> Disponible</button>
               <button 
                 className={`btn-status-update occupee ${station.status === 'busy' ? 'active' : ''}`}
                 onClick={() => handleStatusUpdate('busy')}
-              >🟡 Occupée</button>
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}
+              ><div className="status-dot busy" style={{ margin: 0 }}></div> Occupée</button>
               <button 
                 className={`btn-status-update hors-service ${station.status === 'offline' ? 'active' : ''}`}
                 onClick={() => handleStatusUpdate('offline')}
-              >🔴 Hors service</button>
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center' }}
+              ><div className="status-dot offline" style={{ margin: 0 }}></div> Hors service</button>
             </div>
           </div>
         )}

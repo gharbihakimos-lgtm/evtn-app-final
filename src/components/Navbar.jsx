@@ -6,16 +6,21 @@ import { useTheme } from '../context/ThemeContext';
 
 const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin }) => {
   const { user, isAuthenticated, logout } = useAuth();
-  const { stations, filters, setFilters } = useStations();
+  const { stations, filters, setFilters, setSelectedStation } = useStations();
   const { theme, toggleTheme } = useTheme();
 
   const handleSearchChange = (e) => {
     setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
   };
 
+  const handleHomeClick = () => {
+    setFilters((prev) => ({ ...prev, searchQuery: '' }));
+    if (setSelectedStation) setSelectedStation(null);
+  };
+
   return (
     <nav className="navbar">
-      <div className="navbar-brand">
+      <div className="navbar-brand" onClick={handleHomeClick} style={{ cursor: 'pointer' }}>
         <Zap className="brand-icon" size={28} />
         <div className="brand-text">
           <h1>EVTN</h1>

@@ -140,7 +140,10 @@ const MapView = () => {
                 <h3>{station.name}</h3>
                 <div className="popup-info">
                   <span>⚡ {station.power} kW</span>
-                  <span>{station.status === 'available' ? '🟢 Disponible' : station.status === 'busy' ? '🟡 Occupée' : '🔴 Hors service'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <div className={`status-dot ${station.status}`} style={{ margin: 0, marginTop: '2px' }}></div>
+                    <span>{station.status === 'available' ? 'Disponible' : station.status === 'busy' ? 'Occupée' : 'Hors service'}</span>
+                  </div>
                 </div>
                 <button 
                   className="btn-popup-detail"
