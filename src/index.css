@@ -452,12 +452,15 @@ body {
 
 /* Status Dot, Power Badge, Connector Tag */
 .status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  width: 10px;
+  height: 10px;
+  min-width: 10px;
+  min-height: 10px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50% !important;
   display: inline-block;
   flex-shrink: 0;
-  margin-top: 6px;
+  margin-top: 5px;
 }
 .status-dot.available {
   background: var(--status-available);

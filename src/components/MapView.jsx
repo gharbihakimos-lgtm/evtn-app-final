@@ -15,7 +15,7 @@ const createMarkerIcon = (status) => {
   
   return L.divIcon({
     className: 'custom-marker',
-    html: `<div style="background:${colors[statusKey]};width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 12px rgba(0,0,0,0.4);cursor:pointer;"><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M13 2L3 14h9l-1 10 10-12h-9l1-10z'/></svg></div>`,
+    html: `<div style="background:${colors[statusKey]};width:36px;height:36px;min-width:36px;min-height:36px;border-radius:50% !important;display:flex;align-items:center;justify-content:center;border:3px solid rgba(255,255,255,0.9);box-shadow:0 2px 12px rgba(0,0,0,0.4);cursor:pointer;"><svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M13 2L3 14h9l-1 10 10-12h-9l1-10z'/></svg></div>`,
     iconSize: [36, 36],
     iconAnchor: [18, 36],
     popupAnchor: [0, -36],
