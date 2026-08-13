@@ -51,14 +51,17 @@ const Sidebar = ({ onOpenLegal }) => {
         )}
       </div>
 
-      <div className="sidebar-footer" style={{ padding: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: '0.8rem' }}>
+      <div className="sidebar-footer" style={{ padding: '1rem', borderTop: '1px solid var(--border)', textAlign: 'center', fontSize: '0.8rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
         <button 
           onClick={onOpenLegal} 
           style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', textDecoration: 'underline' }}
         >
           Mentions Légales & Confidentialité
         </button>
-        <div style={{ marginTop: '0.5rem', color: 'var(--text-dim)' }}>
+        <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+          Données temps réel alimentées par <strong>OpenChargeMap</strong>
+        </span>
+        <div style={{ color: 'var(--text-dim)' }}>
           © 2026 EVTN - Tous droits réservés
         </div>
       </div>

@@ -4,11 +4,27 @@ import { db, storage, isFirebaseConfigured } from '../config/firebase';
 import { collection, onSnapshot, addDoc, updateDoc, deleteDoc, doc, setDoc, getDocs } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { useAuth } from './AuthContext';
+import { useOpenChargeMap } from '../hooks/useOpenChargeMap';
 
 const StationsContext = createContext();
 
 export function StationsProvider({ children }) {
-  const [stations, setStations] = useState(mockStations);
+  const [firebaseStations, setFirebaseStations] = useState(mockStations);
+  const { ocmStations } = useOpenChargeMap();
+
+  // Combine Firebase stations with OCM stations, avoiding duplicates (within ~100m)
+  const stations = React.useMemo(() => {
+    const combined = [...firebaseStations];
+    ocmStations.forEach(ocm => {
+      const exists = combined.some(s => {
+        const dist = Math.sqrt(Math.pow(s.lat - ocm.lat, 2) + Math.pow(s.lng - ocm.lng, 2));
+        return dist < 0.001; // Approx 100m
+      });
+      if (!exists) combined.push(ocm);
+    });
+    return combined;
+  }, [firebaseStations, ocmStations]);
+
   const [filteredStations, setFilteredStations] = useState(mockStations);
   const [selectedStation, setSelectedStation] = useState(null);
   const [filters, setFilters] = useState({
@@ -48,9 +64,9 @@ export function StationsProvider({ children }) {
               console.error("Error seeding station", err);
             }
           });
-          setStations(mockStations); // Optimistic UI
+          setFirebaseStations(mockStations); // Optimistic UI
         } else {
-          setStations(stationsData);
+          setFirebaseStations(stationsData);
         }
       },
       (error) => {
@@ -103,7 +119,7 @@ export function StationsProvider({ children }) {
 
   const updateStationStatus = useCallback(async (stationId, newStatus, userName, busyUntil = null) => {
     if (!isFirebaseConfigured) {
-      setStations(prev => prev.map(s => {
+      setFirebaseStations(prev => prev.map(s => {
         if (s.id === stationId) {
           return {
             ...s,
@@ -180,7 +196,7 @@ export function StationsProvider({ children }) {
       if (photoFile) {
         newStation.photos = [URL.createObjectURL(photoFile)];
       }
-      setStations(prev => [...prev, newStation]);
+      setFirebaseStations(prev => [...prev, newStation]);
       addPoints?.(10);
       return;
     }
@@ -217,7 +233,7 @@ export function StationsProvider({ children }) {
       if (photoFile) {
         updatedStation.photos = [URL.createObjectURL(photoFile)];
       }
-      setStations(prev => prev.map(s => s.id === stationId ? { ...s, ...updatedStation } : s));
+      setFirebaseStations(prev => prev.map(s => s.id === stationId ? { ...s, ...updatedStation } : s));
       return;
     }
 
@@ -231,7 +247,7 @@ export function StationsProvider({ children }) {
 
   const deleteStation = useCallback(async (stationId) => {
     if (!isFirebaseConfigured) {
-      setStations(prev => prev.filter(s => s.id !== stationId));
+      setFirebaseStations(prev => prev.filter(s => s.id !== stationId));
       return;
     }
     try {
@@ -245,7 +261,7 @@ export function StationsProvider({ children }) {
 
   const addReview = useCallback(async (stationId, review) => {
     if (!isFirebaseConfigured) {
-      setStations(prev => prev.map(s => {
+      setFirebaseStations(prev => prev.map(s => {
         if (s.id === stationId) {
           const newReviewCount = (s.reviewCount || 0) + 1;
           const newRating = (((s.rating || 0) * (s.reviewCount || 0)) + review.rating) / newReviewCount;
