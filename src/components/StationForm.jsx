@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useStations } from '../context/StationsContext';
 import { useGeolocation } from '../hooks/useGeolocation';
-import { POWER_OPTIONS, CONNECTOR_TYPES } from '../data/mockStations';
+import { POWER_OPTIONS, CONNECTOR_TYPES, AMENITIES_OPTIONS } from '../data/mockStations';
 import { X, MapPin, Camera } from 'lucide-react';
 
 const CITIES = ['Tunis', 'Sfax', 'Sousse', 'Bizerte', 'Nabeul', 'Ariana', 'Gabès'];
@@ -22,7 +22,8 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
     openHours: initialData?.openHours || '24/7',
     description: initialData?.description || '',
     reference: initialData?.reference || '',
-    isSmart: initialData?.isSmart || false
+    isSmart: initialData?.isSmart || false,
+    amenities: initialData?.amenities || []
   });
 
   const [photoFile, setPhotoFile] = useState(null);
@@ -76,12 +77,16 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
         setPhotoPreview(URL.createObjectURL(files[0]));
       }
     } else if (type === 'checkbox') {
-      setFormData(prev => ({
-        ...prev,
-        connectors: checked 
-          ? [...prev.connectors, value]
-          : prev.connectors.filter(c => c !== value)
-      }));
+      if (name === 'isSmart') {
+        setFormData(prev => ({ ...prev, isSmart: checked }));
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          [name]: checked 
+            ? [...(prev[name] || []), value]
+            : (prev[name] || []).filter(item => item !== value)
+        }));
+      }
     } else if (name === 'isSmart') {
       setFormData(prev => ({ ...prev, isSmart: checked }));
     } else {
@@ -192,6 +197,18 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
                 <label key={conn} className="checkbox-label">
                   <input type="checkbox" name="connectors" value={conn} checked={formData.connectors.includes(conn)} onChange={handleChange} />
                   {conn}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div className="form-group">
+            <label>Commodités à proximité</label>
+            <div className="checkbox-group">
+              {AMENITIES_OPTIONS?.map(am => (
+                <label key={am} className="checkbox-label">
+                  <input type="checkbox" name="amenities" value={am} checked={(formData.amenities || []).includes(am)} onChange={handleChange} />
+                  {am === 'cafe' ? 'Café' : am === 'wifi' ? 'Wi-Fi' : am === 'shopping' ? 'Shopping' : am === 'parking' ? 'Parking' : am === 'restroom' ? 'Toilettes' : am}
                 </label>
               ))}
             </div>

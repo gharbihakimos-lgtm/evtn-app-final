@@ -163,11 +163,14 @@ export function AuthProvider({ children }) {
 
   const updateUserProfile = async (data) => {
     if (!user) return;
-    setUser(prev => ({ ...prev, ...data }));
+    const updatedUser = { ...user, ...data };
+    setUser(updatedUser);
     
     if (isFirebaseConfigured) {
       const userRef = doc(db, 'users', user.id);
       await updateDoc(userRef, data);
+    } else {
+      localStorage.setItem('evtn_user', JSON.stringify(updatedUser));
     }
   };
 

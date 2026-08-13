@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
 import { useTheme } from '../context/ThemeContext';
 
-const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin }) => {
+const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin, appMode, setAppMode }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { stations, filters, setFilters, setSelectedStation } = useStations();
   const { theme, toggleTheme } = useTheme();
@@ -56,7 +56,23 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin
           <Plus size={18} />
           <span>Ajouter une borne</span>
         </button>
-        
+        <div style={{ display: 'flex', background: 'var(--bg-secondary)', borderRadius: '20px', padding: '0.2rem', marginRight: '1rem' }}>
+          <button 
+            className={`btn-icon ${appMode === 'map' ? 'active' : ''}`}
+            onClick={() => setAppMode('map')}
+            style={{ borderRadius: '16px', padding: '0.4rem 1rem', background: appMode === 'map' ? 'var(--primary)' : 'transparent', color: appMode === 'map' ? 'white' : 'var(--text-main)' }}
+          >
+            Carte
+          </button>
+          <button 
+            className={`btn-icon ${appMode === 'route' ? 'active' : ''}`}
+            onClick={() => setAppMode('route')}
+            style={{ borderRadius: '16px', padding: '0.4rem 1rem', background: appMode === 'route' ? 'var(--primary)' : 'transparent', color: appMode === 'route' ? 'white' : 'var(--text-main)' }}
+          >
+            Itinéraire
+          </button>
+        </div>
+
         <div className="user-section">
           {isAuthenticated ? (
             <div className="user-profile-wrapper" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>

@@ -1,9 +1,11 @@
 import React from 'react';
 import { useStations } from '../context/StationsContext';
-import { RotateCcw } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import { RotateCcw, Car } from 'lucide-react';
 
 const FilterBar = () => {
   const { filters, setFilters, filteredStations } = useStations();
+  const { user } = useAuth();
 
   const handlePowerChange = (value) => {
     const minPower = value === 'all' ? 0 : parseInt(value);
@@ -71,6 +73,22 @@ const FilterBar = () => {
           </button>
         ))}
       </div>
+      {user?.vehicle?.connectors?.length > 0 && (
+        <div className="filter-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '0.5rem', marginLeft: 'auto', background: 'var(--bg-secondary)', padding: '0.4rem 0.8rem', borderRadius: '8px' }}>
+          <Car size={16} color={filters.compatibleOnly ? 'var(--primary)' : 'var(--text-muted)'} />
+          <label style={{ margin: 0, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <span style={{ fontSize: '0.85rem', color: filters.compatibleOnly ? 'var(--primary)' : 'var(--text-main)' }}>
+              Mon véhicule
+            </span>
+            <input 
+              type="checkbox" 
+              checked={filters.compatibleOnly || false}
+              onChange={(e) => setFilters(prev => ({ ...prev, compatibleOnly: e.target.checked }))}
+              style={{ accentColor: 'var(--primary)', cursor: 'pointer' }}
+            />
+          </label>
+        </div>
+      )}
 
       <div className="filter-results">
         <span className="results-count">{filteredStations?.length || 0} bornes</span>

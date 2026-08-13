@@ -11,12 +11,15 @@ import UserProfileModal from './components/UserProfileModal';
 import AdminPage from './components/AdminPage';
 import LegalModal from './components/LegalModal';
 
+import RoutePlanner from './components/RoutePlanner';
+
 function App() {
   const [showStationForm, setShowStationForm] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
   const [currentView, setCurrentView] = useState('app'); // 'app' or 'admin'
+  const [appMode, setAppMode] = useState('map'); // 'map' or 'route'
   const { isAuthenticated } = useAuth();
 
   const handleAddStation = () => {
@@ -38,11 +41,17 @@ function App() {
         onOpenAuthModal={() => setShowAuthModal(true)}
         onOpenProfile={() => setShowProfile(true)}
         onOpenAdmin={() => setCurrentView('admin')}
+        appMode={appMode}
+        setAppMode={setAppMode}
       />
       <FilterBar />
       <div className="app-container">
-        <Sidebar onOpenLegal={() => setShowLegal(true)} />
-        <MapView />
+        {appMode === 'map' ? (
+          <Sidebar onOpenLegal={() => setShowLegal(true)} />
+        ) : (
+          <RoutePlanner />
+        )}
+        <MapView appMode={appMode} />
       </div>
 
       <StationDetail />

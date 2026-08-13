@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { X, MapPin, Zap, Star, Clock, Building2, Banknote, Plug, Navigation, Heart, Wifi, Hash } from 'lucide-react';
+import { X, MapPin, Zap, Star, Clock, Building2, Banknote, Plug, Navigation, Heart, Wifi, Hash, Coffee, ShoppingBag, Car } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
 import { db, storage, isFirebaseConfigured } from '../config/firebase';
@@ -19,8 +19,10 @@ const StationDetail = () => {
   const [isSubmittingReview, setIsSubmittingReview] = useState(false);
   const [photoFile, setPhotoFile] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
+  const [currentPhotoIndex, setCurrentPhotoIndex] = useState(0);
 
   useEffect(() => {
+    setCurrentPhotoIndex(0); // Reset when station changes
     const handleClick = (e) => {
       if (panelRef.current && !panelRef.current.contains(e.target)) {
         setSelectedStation(null);
@@ -121,6 +123,28 @@ const StationDetail = () => {
     return stars;
   };
 
+  const getAmenityIcon = (type) => {
+    switch (type) {
+      case 'cafe': return <Coffee size={16} />;
+      case 'wifi': return <Wifi size={16} />;
+      case 'shopping': return <ShoppingBag size={16} />;
+      case 'parking': return <Car size={16} />;
+      case 'restroom': return <Building2 size={16} />;
+      default: return null;
+    }
+  };
+
+  const getAmenityLabel = (type) => {
+    switch (type) {
+      case 'cafe': return 'Café';
+      case 'wifi': return 'Wi-Fi';
+      case 'shopping': return 'Shopping';
+      case 'parking': return 'Parking';
+      case 'restroom': return 'Toilettes';
+      default: return type;
+    }
+  };
+
   return (
     <div className="station-detail-overlay">
       <div className="station-detail" ref={panelRef}>
@@ -129,8 +153,29 @@ const StationDetail = () => {
         </button>
 
         {station.photos && station.photos.length > 0 ? (
-          <div className="station-cover">
-            <img src={station.photos[0]} alt={station.name} />
+          <div className="station-cover" style={{ position: 'relative' }}>
+            <img src={station.photos[currentPhotoIndex]} alt={station.name} />
+            {station.photos.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.6)', padding: '0.2rem 0.5rem', borderRadius: '12px', color: 'white', fontSize: '0.8rem' }}>
+                {currentPhotoIndex + 1} / {station.photos.length}
+              </div>
+            )}
+            {station.photos.length > 1 && (
+              <>
+                <button 
+                  onClick={() => setCurrentPhotoIndex(prev => prev === 0 ? station.photos.length - 1 : prev - 1)}
+                  style={{ position: 'absolute', top: '50%', left: '10px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ❮
+                </button>
+                <button 
+                  onClick={() => setCurrentPhotoIndex(prev => prev === station.photos.length - 1 ? 0 : prev + 1)}
+                  style={{ position: 'absolute', top: '50%', right: '10px', transform: 'translateY(-50%)', background: 'rgba(0,0,0,0.5)', border: 'none', color: 'white', width: '30px', height: '30px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                >
+                  ❯
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="station-cover-placeholder"></div>
@@ -185,8 +230,13 @@ const StationDetail = () => {
           </div>
         </div>
 
-        <div className={`status-badge-large ${station.status}`}>
-          {getStatusLabel(station.status)}
+        <div className={`status-badge-large ${station.status}`} style={{ display: 'flex', flexDirection: 'column' }}>
+          <span>{getStatusLabel(station.status)}</span>
+          {station.status === 'busy' && station.busyUntil && new Date(station.busyUntil) > new Date() && (
+            <span style={{ fontSize: '0.8rem', opacity: 0.9, marginTop: '0.2rem', fontWeight: 'normal' }}>
+              Disponible vers {new Date(station.busyUntil).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+            </span>
+          )}
         </div>
 
         <div className="action-buttons-row" style={{ marginTop: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap', display: 'flex', gap: '0.5rem' }}>
@@ -207,14 +257,26 @@ const StationDetail = () => {
             icon={Plug}
             onConfirm={() => {
               if (station.status === 'available') {
-                handleStatusUpdate('busy');
-                if (isAuthenticated && addPoints) addPoints(2);
+                setShowCheckIn(true);
               } else if (station.status === 'busy') {
                 handleStatusUpdate('available');
               }
             }}
           />
         </div>
+
+        {showCheckIn && (
+          <div className="checkin-menu" style={{ marginBottom: '1.5rem', border: '1px solid var(--primary)' }}>
+            <h4 style={{ margin: '0 0 0.5rem', color: 'var(--text-main)', fontSize: '0.9rem' }}>Combien de temps allez-vous rester ?</h4>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              <button className="btn-secondary" onClick={() => handleCheckIn(15)}>15 min</button>
+              <button className="btn-secondary" onClick={() => handleCheckIn(30)}>30 min</button>
+              <button className="btn-secondary" onClick={() => handleCheckIn(60)}>1 heure</button>
+              <button className="btn-secondary" onClick={() => handleCheckIn(120)}>2 heures</button>
+              <button className="btn-primary" onClick={() => setShowCheckIn(false)} style={{ marginLeft: 'auto', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-main)' }}>Annuler</button>
+            </div>
+          </div>
+        )}
 
         <div className="detail-section">
           <h3>Informations</h3>
@@ -269,6 +331,20 @@ const StationDetail = () => {
             ))}
           </div>
         </div>
+
+        {station.amenities && station.amenities.length > 0 && (
+          <div className="detail-section">
+            <h3>À proximité</h3>
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+              {station.amenities.map(am => (
+                <div key={am} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'var(--bg-secondary)', padding: '0.4rem 0.8rem', borderRadius: '8px', fontSize: '0.85rem', color: 'var(--text-main)', border: '1px solid var(--border)' }}>
+                  {getAmenityIcon(am)}
+                  <span>{getAmenityLabel(am)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="detail-section">
           <div className="rating-large">
