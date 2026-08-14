@@ -67,6 +67,9 @@ const RoutingControl = ({ start, end }) => {
 
     return () => {
       try {
+        if (routingControl.getPlan()) {
+          routingControl.getPlan().setWaypoints([]);
+        }
         map.removeControl(routingControl);
       } catch (e) {
         console.error(e);
@@ -89,7 +92,7 @@ const LocateMeControl = ({ position }) => {
   };
 
   return (
-    <div className="leaflet-bottom leaflet-right" style={{ bottom: '80px', right: '10px', position: 'absolute', zIndex: 1000 }}>
+    <div className="leaflet-bottom leaflet-right" style={{ bottom: '80px', right: '10px', position: 'absolute', zIndex: 400 }}>
       <div className="leaflet-control leaflet-bar">
         <button 
           onClick={handleLocate}
@@ -108,14 +111,15 @@ const MapView = () => {
   const { position } = useGeolocation();
   const { theme } = useTheme();
 
-  const center = [36.8, 10.18];
-  const zoom = 7;
+  const defaultCenter = [36.8065, 10.1815]; // Tunis
+  const center = selectedStation ? [selectedStation.lat, selectedStation.lng] : defaultCenter;
+  const zoom = selectedStation ? 14 : 7;
 
   return (
     <div className="map-container">
       <MapContainer center={center} zoom={zoom} style={{ height: '100%', width: '100%' }} zoomControl={false}>
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">OpenStreetMap</a>'
           url={theme === 'dark' 
             ? "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
             : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"}
@@ -123,13 +127,13 @@ const MapView = () => {
         <ZoomControl position="bottomright" />
         <LocateMeControl position={position} />
         
-        {position && (
+        {position && typeof position.lat === 'number' && typeof position.lng === 'number' && !isNaN(position.lat) && !isNaN(position.lng) && (
           <Marker position={[position.lat, position.lng]} icon={userLocationIcon}>
             <Popup>Votre position</Popup>
           </Marker>
         )}
 
-        {filteredStations?.map(station => (
+        {filteredStations?.filter(s => typeof s?.lat === 'number' && typeof s?.lng === 'number' && !isNaN(s.lat) && !isNaN(s.lng)).map(station => (
           <Marker 
             key={station.id} 
             position={[station.lat, station.lng]} 

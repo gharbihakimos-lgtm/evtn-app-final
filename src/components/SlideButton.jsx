@@ -26,7 +26,7 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
     if (newX >= maxDrag * 0.90) {
       setIsDragging(false);
       setDragX(0); // Reset position immediately
-      onConfirm();
+      onConfirm?.();
     }
   };
 
@@ -39,8 +39,7 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
     const handleMove = (e) => {
       let clientX;
       if (e.type.includes('touch')) {
-        clientX = e.touches[0].clientX;
-        // e.preventDefault(); // Cannot do this if passive is true, but we bound it manually below
+        clientX = e.touches?.[0]?.clientX || 0;
       } else {
         clientX = e.clientX;
       }
@@ -82,7 +81,7 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
         className="slide-btn-thumb"
         style={{ transform: `translateX(${dragX}px)`, transition: isDragging ? 'none' : 'transform 0.3s ease' }}
         onMouseDown={(e) => handleDragStart(e.clientX)}
-        onTouchStart={(e) => handleDragStart(e.touches[0].clientX)}
+        onTouchStart={(e) => e.touches?.[0] && handleDragStart(e.touches[0].clientX)}
       >
         {Icon ? <Icon size={20} /> : <ChevronRight size={20} />}
       </div>

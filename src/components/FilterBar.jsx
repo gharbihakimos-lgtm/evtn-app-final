@@ -21,10 +21,10 @@ const FilterBar = () => {
   };
 
   const resetFilters = () => {
-    setFilters({ minPower: 0, connectorType: '', status: '', searchQuery: '' });
+    setFilters({ minPower: 0, connectorType: '', status: '', searchQuery: '', compatibleOnly: false, favoritesOnly: false });
   };
 
-  const hasActiveFilters = filters.minPower > 0 || filters.connectorType || filters.status;
+  const hasActiveFilters = filters.minPower > 0 || !!filters.connectorType || !!filters.status || !!filters.compatibleOnly || !!filters.favoritesOnly || !!filters.searchQuery;
 
   return (
     <div className="filter-bar">

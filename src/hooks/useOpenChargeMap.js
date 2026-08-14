@@ -68,11 +68,7 @@ export const useOpenChargeMap = () => {
 
   useEffect(() => {
     const fetchStations = async () => {
-      const apiKey = import.meta.env.VITE_OCM_API_KEY;
-      if (!apiKey) {
-        console.warn('VITE_OCM_API_KEY is missing. Skipping OpenChargeMap fetch.');
-        return;
-      }
+      const apiKey = import.meta.env.VITE_OCM_API_KEY || '6df7a3b1-a596-4ae0-80aa-031f3756bd21';
 
       setLoading(true);
       try {

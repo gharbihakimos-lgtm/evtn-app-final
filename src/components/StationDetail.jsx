@@ -351,7 +351,7 @@ const StationDetail = () => {
             <div className="stars">
               {renderStars(station.rating || 0)}
             </div>
-            <span className="rating-value">{station.rating?.toFixed(1) || '0.0'}</span>
+            <span className="rating-value">{typeof station?.rating === 'number' ? station.rating.toFixed(1) : '0.0'}</span>
             <span className="review-count">({station.reviewCount || 0} avis)</span>
           </div>
           {station.description && (

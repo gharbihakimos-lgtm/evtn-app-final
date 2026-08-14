@@ -51,7 +51,7 @@ const StationCard = ({ station, onClick, isSelected }) => {
       <div className="card-footer">
         <div className="rating">
           <Star size={13} className="star-icon" />
-          <span>{station.rating?.toFixed(1) || 'N/A'}</span>
+          <span>{typeof station?.rating === 'number' ? station.rating.toFixed(1) : 'N/A'}</span>
         </div>
         <div className="price">{station.price}</div>
       </div>

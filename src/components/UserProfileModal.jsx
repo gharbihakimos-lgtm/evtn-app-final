@@ -79,7 +79,7 @@ const UserProfileModal = ({ isOpen, onClose }) => {
             <div className="profile-section">
               <div className="user-profile-header">
                 <div className="avatar-large">
-                  <span style={{ fontSize: '2rem' }}>{user?.name?.charAt(0).toUpperCase()}</span>
+                  <span style={{ fontSize: '2rem' }}>{user?.name?.charAt(0)?.toUpperCase() || 'U'}</span>
                 </div>
                 <div className="user-details">
                   <h3>{user?.name}</h3>
@@ -135,14 +135,14 @@ const UserProfileModal = ({ isOpen, onClose }) => {
           {activeTab === 'leaderboard' && (
             <div className="leaderboard-section">
               <ul className="leaderboard-list">
-                {leaderboard.map((u, index) => (
+                {(leaderboard || []).map((u, index) => (
                   <li key={u.id} className={`leaderboard-item ${u.id === user?.id ? 'current-user' : ''}`}>
                     <span className="rank">#{index + 1}</span>
                     <span className="name">{u.name} {u.id === user?.id && '(Vous)'}</span>
                     <span className="points"><Trophy size={14} style={{ marginRight: '0.25rem' }}/>{u.points || 0}</span>
                   </li>
                 ))}
-                {leaderboard.length === 0 && (
+                {(!leaderboard || leaderboard.length === 0) && (
                   <p style={{ textAlign: 'center', color: 'var(--text-dim)', padding: '2rem 0' }}>Aucun utilisateur classé pour le moment.</p>
                 )}
               </ul>

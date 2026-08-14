@@ -14,13 +14,17 @@ const AdminPage = ({ onExit }) => {
   const [editingStation, setEditingStation] = useState(null);
 
   useEffect(() => {
+    let isMounted = true;
     if (activeTab === 'dashboard') {
-      const currentStats = getAdminStats();
-      setStats(currentStats);
+      Promise.resolve(getAdminStats()).then(currentStats => {
+        if (isMounted && currentStats) setStats(currentStats);
+      });
     } else if (activeTab === 'users') {
-      const allUsers = getAllUsers();
-      setUsers(allUsers);
+      Promise.resolve(getAllUsers()).then(allUsers => {
+        if (isMounted && Array.isArray(allUsers)) setUsers(allUsers);
+      });
     }
+    return () => { isMounted = false; };
   }, [activeTab, getAdminStats, getAllUsers]);
 
   const handleDeleteStation = (id) => {
@@ -29,10 +33,11 @@ const AdminPage = ({ onExit }) => {
     }
   };
 
-  const handleToggleRole = (userId, currentRole) => {
+  const handleToggleRole = async (userId, currentRole) => {
     if (window.confirm("Changer le rôle de cet utilisateur ?")) {
-      updateUserRole(userId, !currentRole);
-      setUsers(getAllUsers());
+      await updateUserRole(userId, !currentRole);
+      const updatedUsers = await getAllUsers();
+      if (Array.isArray(updatedUsers)) setUsers(updatedUsers);
     }
   };
 
@@ -79,7 +84,7 @@ const AdminPage = ({ onExit }) => {
               <span className="role">Administrateur</span>
             </div>
           </div>
-          <button className="btn btn-secondary btn-exit" onClick={onExit}>
+          <button className="btn btn-secondary btn-exit" onClick={() => onExit?.()}>
             <LogOut size={18} />
             Retour à la carte
           </button>

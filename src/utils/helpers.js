@@ -1,4 +1,5 @@
 export function formatDistance(meters) {
+  if (meters == null || isNaN(meters)) return 'N/A';
   if (meters < 1000) return `${Math.round(meters)} m`;
   return `${(meters / 1000).toFixed(1)} km`;
 }
@@ -6,6 +7,7 @@ export function formatDistance(meters) {
 export function formatDate(isoString) {
   if (!isoString) return 'Date inconnue';
   const date = new Date(isoString);
+  if (isNaN(date.getTime())) return 'Date inconnue';
   const now = new Date();
   const diffInSeconds = Math.floor((now - date) / 1000);
 
@@ -28,7 +30,7 @@ export function formatDate(isoString) {
 }
 
 export function formatPower(kw) {
-  if (kw == null) return 'N/A';
+  if (kw == null || isNaN(kw)) return 'N/A';
   return kw >= 50 ? `${kw} kW DC` : `${kw} kW AC`;
 }
 

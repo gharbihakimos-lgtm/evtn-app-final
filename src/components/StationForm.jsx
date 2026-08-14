@@ -46,7 +46,8 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
         openHours: initialData?.openHours || '24/7',
         description: initialData?.description || '',
         reference: initialData?.reference || '',
-        isSmart: initialData?.isSmart || false
+        isSmart: initialData?.isSmart || false,
+        amenities: initialData?.amenities || []
       });
       setPhotoPreview(initialData?.photos?.[0] || '');
       setPhotoFile(null);
@@ -61,7 +62,7 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
       setFormData(prev => ({
         ...prev,
         lat: position.lat.toFixed(6),
-        lng: position.lng.toFixed(6)
+        lng: position.lng.toFixed(6),
       }));
     }
   }, [position]);
@@ -72,7 +73,7 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
     const { name, value, type, checked, files } = e.target;
     if (type === 'file') {
       if (files && files[0]) {
-        if (photoPreview) URL.revokeObjectURL(photoPreview);
+        if (photoPreview && photoPreview.startsWith('blob:')) URL.revokeObjectURL(photoPreview);
         setPhotoFile(files[0]);
         setPhotoPreview(URL.createObjectURL(files[0]));
       }
@@ -96,7 +97,7 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!formData.name || !formData.address || !formData.city || !formData.lat || !formData.lng || formData.connectors.length === 0) {
+    if (!formData.name || !formData.address || !formData.city || !formData.lat || !formData.lng || (formData.connectors || []).length === 0) {
       setError('Veuillez remplir tous les champs obligatoires et choisir au moins un connecteur.');
       return;
     }

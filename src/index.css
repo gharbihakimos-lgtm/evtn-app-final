@@ -22,6 +22,7 @@
   --status-offline: #EF4444;
   --border: rgba(16, 185, 129, 0.15);
   --bg-secondary: rgba(255, 255, 255, 0.06);
+  --btn-hover: rgba(255, 255, 255, 0.08);
 }
 
 [data-theme='light'] {
@@ -35,6 +36,7 @@
   --text-main: #111827;
   --text-muted: #374151;
   --text-secondary: #065F46;
+  --primary-light: #065F46;
   --text-dim: #6B7280;
   --border: rgba(16, 185, 129, 0.2);
   --bg-secondary: rgba(0, 0, 0, 0.04);
@@ -507,7 +509,7 @@ body {
 .station-detail-overlay {
   position: fixed;
   inset: 0;
-  z-index: 500;
+  z-index: 1500;
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   display: flex;
@@ -832,7 +834,7 @@ body {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 600;
+  z-index: 2000;
   background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(8px);
   display: flex;
