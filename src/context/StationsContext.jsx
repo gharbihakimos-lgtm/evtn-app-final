@@ -12,16 +12,22 @@ export function StationsProvider({ children }) {
   const [firebaseStations, setFirebaseStations] = useState(mockStations);
   const { ocmStations } = useOpenChargeMap();
 
-  // Combine Firebase stations with OCM stations, avoiding duplicates (within ~100m)
+  // Combine Firebase stations + mockStations + OCM stations, avoiding duplicates
   const stations = React.useMemo(() => {
     const combined = [...firebaseStations];
-    ocmStations.forEach(ocm => {
-      const exists = combined.some(s => {
-        const dist = Math.sqrt(Math.pow(s.lat - ocm.lat, 2) + Math.pow(s.lng - ocm.lng, 2));
-        return dist < 0.001; // Approx 100m
-      });
+    
+    // Merge mockStations (the 28 real stations) if not yet in Firebase
+    mockStations.forEach(mock => {
+      const exists = combined.some(s => s.id === mock.id || (Math.abs(s.lat - mock.lat) < 0.001 && Math.abs(s.lng - mock.lng) < 0.001));
+      if (!exists) combined.push(mock);
+    });
+
+    // Merge live OCM stations
+    (ocmStations || []).forEach(ocm => {
+      const exists = combined.some(s => s.id === ocm.id || (Math.abs(s.lat - ocm.lat) < 0.001 && Math.abs(s.lng - ocm.lng) < 0.001));
       if (!exists) combined.push(ocm);
     });
+
     return combined;
   }, [firebaseStations, ocmStations]);
 
@@ -54,24 +60,21 @@ export function StationsProvider({ children }) {
             status: normalizedStatus
           };
         });
-        if (stationsData.length === 0 && !window.hasSeeded) {
+        if (!window.hasSeeded) {
           window.hasSeeded = true;
           mockStations.forEach(async (station) => {
             try {
               const docRef = doc(db, 'stations', station.id);
-              await setDoc(docRef, station);
+              await setDoc(docRef, station, { merge: true });
             } catch (err) {
               console.error("Error seeding station", err);
             }
           });
-          setFirebaseStations(mockStations); // Optimistic UI
-        } else {
-          setFirebaseStations(stationsData);
         }
+        setFirebaseStations(stationsData);
       },
       (error) => {
         console.error("Firestore onSnapshot error:", error);
-        // Fallback or just ignore so the app doesn't crash
       }
     );
 
