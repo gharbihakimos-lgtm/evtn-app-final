@@ -8,6 +8,7 @@ import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { formatDate, formatPower, getStatusLabel } from '../utils/helpers';
 import StationForm from './StationForm';
 import SlideButton from './SlideButton';
+import { mockCoupons } from '../data/mockCoupons';
 
 const StationDetail = () => {
   const { user, isAuthenticated, addPoints, toggleFavorite } = useAuth();
@@ -199,24 +200,50 @@ const StationDetail = () => {
                     e.stopPropagation();
                     if (toggleFavorite) toggleFavorite(station.id);
                   }}
-                  title="Ajouter aux favoris"
+                  title={isFavorite ? "Retirer des favoris" : "Ajouter aux favoris"}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem', color: isFavorite ? '#ef4444' : 'var(--text-dim)' }}
                 >
-                  <Heart 
-                    size={24} 
-                    fill={isFavorite ? '#ef4444' : 'none'} 
-                    color={isFavorite ? '#ef4444' : 'var(--text-muted)'} 
-                  />
+                  <Heart size={22} fill={isFavorite ? "#ef4444" : "none"} />
                 </button>
                 <button
-                  className="btn-secondary"
-                  style={{ padding: '0.4rem 0.6rem', fontSize: '0.8rem' }}
+                  className="btn btn-outline"
                   onClick={() => setIsEditing(true)}
+                  title="Modifier ou corriger cette borne"
+                  style={{ padding: '0.3rem 0.6rem', fontSize: '0.8rem' }}
                 >
                   Corriger
                 </button>
               </div>
             )}
           </div>
+
+          {/* Partner Privilege Banner */}
+          {(() => {
+            const matchedCoupon = mockCoupons.find(c => 
+              c.targetOperatorKeywords.some(kw => 
+                (station.name || '').toLowerCase().includes(kw) || 
+                (station.operator || '').toLowerCase().includes(kw) ||
+                (station.address || '').toLowerCase().includes(kw) ||
+                (station.city || '').toLowerCase().includes(kw)
+              )
+            );
+            if (!matchedCoupon) return null;
+            return (
+              <div className="partner-privilege-banner" style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 95, 70, 0.4))', border: '1px solid var(--primary)', borderRadius: '10px', padding: '0.75rem', marginTop: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <span style={{ fontSize: '1.5rem' }}>{matchedCoupon.partnerLogo}</span>
+                  <div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--primary)', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}> Privilège Partenaire EVTN</div>
+                    <div style={{ fontWeight: '600', color: '#FFF', fontSize: '0.88rem' }}>{matchedCoupon.title}</div>
+                  </div>
+                </div>
+                <div style={{ background: 'var(--primary)', color: '#000', fontWeight: '700', padding: '0.3rem 0.6rem', borderRadius: '6px', fontSize: '0.8rem' }}>
+                  {matchedCoupon.pointsCost} pts
+                </div>
+              </div>
+            );
+          })()}
+
           <div className="address-line" style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'flex-start' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
               <MapPin size={16} />

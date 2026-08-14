@@ -41,6 +41,7 @@ export function AuthProvider({ children }) {
           let favorites = [];
           let vehicle = null;
           let isAdmin = false;
+          let coupons = [];
 
           if (isFirebaseConfigured) {
             const userRef = doc(db, 'users', currentUser.uid);
@@ -51,6 +52,7 @@ export function AuthProvider({ children }) {
               favorites = data.favorites || [];
               vehicle = data.vehicle || null;
               isAdmin = data.isAdmin || false;
+              coupons = data.coupons || [];
             } else {
               await setDoc(userRef, { 
                 points: 0, 
@@ -58,7 +60,8 @@ export function AuthProvider({ children }) {
                 email: currentUser.email,
                 favorites: [],
                 vehicle: null,
-                isAdmin: false
+                isAdmin: false,
+                coupons: []
               });
             }
           }
@@ -69,7 +72,8 @@ export function AuthProvider({ children }) {
             points,
             favorites,
             vehicle,
-            isAdmin
+            isAdmin,
+            coupons: coupons || []
           });
           setIsAuthenticated(true);
         } else {
@@ -214,6 +218,32 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const redeemCoupon = async (coupon) => {
+    if (!user) throw new Error("Veuillez vous connecter pour débloquer cette offre");
+    if ((user.points || 0) < coupon.pointsCost) {
+      throw new Error(`Points insuffisants. Il vous manque ${coupon.pointsCost - (user.points || 0)} points.`);
+    }
+
+    const passCode = `EVTN-PASS-${Math.random().toString(36).substring(2, 7).toUpperCase()}`;
+    const newCouponItem = {
+      ...coupon,
+      passCode,
+      redeemedAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + (coupon.validityDays || 30) * 24 * 60 * 60 * 1000).toISOString(),
+      isUsed: false
+    };
+
+    const newPoints = (user.points || 0) - coupon.pointsCost;
+    const updatedCoupons = [newCouponItem, ...(user.coupons || [])];
+
+    await updateUserProfile({
+      points: newPoints,
+      coupons: updatedCoupons
+    });
+
+    return newCouponItem;
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -227,7 +257,8 @@ export function AuthProvider({ children }) {
       updateUserProfile,
       getLeaderboard,
       getAllUsers,
-      updateUserRole
+      updateUserRole,
+      redeemCoupon
     }}>
       {!loading && children}
     </AuthContext.Provider>
