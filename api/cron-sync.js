@@ -52,6 +52,32 @@ export default async function handler(req, res) {
       const docId = `tn-real-${ocm.ID}`;
       const firestoreUrl = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/stations/${docId}`;
 
+      // Check if the station was recently updated by a human user
+      try {
+        const checkRes = await fetch(firestoreUrl);
+        if (checkRes.ok) {
+          const docData = await checkRes.json();
+          const currentUpdatedBy = docData.fields?.updatedBy?.stringValue || '';
+          const currentLastUpdate = docData.fields?.lastUpdate?.stringValue;
+          
+          // If updated by a real user in the last 24h, preserve the user's input!
+          const isUserUpdate = currentUpdatedBy && 
+            !currentUpdatedBy.startsWith('Auto-Sync') && 
+            !currentUpdatedBy.startsWith('OpenChargeMap') && 
+            currentUpdatedBy !== 'Système (Auto)';
+
+          if (isUserUpdate && currentLastUpdate) {
+            const hoursSinceUserUpdate = (new Date() - new Date(currentLastUpdate)) / (1000 * 60 * 60);
+            if (hoursSinceUserUpdate < 24) {
+              console.log(`[Cron Sync] Preserving user update by "${currentUpdatedBy}" for station ${docId}`);
+              continue; // Skip overwriting user's update
+            }
+          }
+        }
+      } catch (checkErr) {
+        // Document might not exist yet, proceed with patch/upsert
+      }
+
       // Construct Firestore REST payload
       const fields = {
         name: { stringValue: address.Title || 'Station Recharge' },
