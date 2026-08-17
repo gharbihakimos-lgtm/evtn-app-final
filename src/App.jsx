@@ -12,6 +12,7 @@ import UserProfileModal from './components/UserProfileModal';
 import AdminPage from './components/AdminPage';
 import LegalModal from './components/LegalModal';
 import RoutePlanner from './components/RoutePlanner';
+import MenuDrawer from './components/MenuDrawer';
 import { Map as MapIcon, List as ListIcon } from 'lucide-react';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showLegal, setShowLegal] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
   const [currentView, setCurrentView] = useState('app'); // 'app' or 'admin'
   const [appMode, setAppMode] = useState('map'); // 'map' or 'route'
   const [mobileTab, setMobileTab] = useState('map'); // 'map' or 'list'
@@ -44,6 +46,7 @@ function App() {
         onOpenAuthModal={() => setShowAuthModal(true)}
         onOpenProfile={() => setShowProfile(true)}
         onOpenAdmin={() => setCurrentView('admin')}
+        onOpenMenu={() => setShowMenu(true)}
         appMode={appMode}
         setAppMode={setAppMode}
       />
@@ -64,6 +67,7 @@ function App() {
       {appMode === 'map' && (
         <div className="mobile-tab-bar">
           <button 
+            type="button"
             className={`mobile-tab-btn ${mobileTab === 'map' ? 'active' : ''}`}
             onClick={() => setMobileTab('map')}
           >
@@ -71,6 +75,7 @@ function App() {
             <span>Carte</span>
           </button>
           <button 
+            type="button"
             className={`mobile-tab-btn ${mobileTab === 'list' ? 'active' : ''}`}
             onClick={() => setMobileTab('list')}
           >
@@ -79,6 +84,19 @@ function App() {
           </button>
         </div>
       )}
+
+      {/* Slide-out Menu Drawer */}
+      <MenuDrawer
+        isOpen={showMenu}
+        onClose={() => setShowMenu(false)}
+        onOpenProfile={() => setShowProfile(true)}
+        onOpenAuth={() => setShowAuthModal(true)}
+        onOpenStationForm={handleAddStation}
+        onOpenLegal={() => setShowLegal(true)}
+        onOpenAdmin={() => setCurrentView('admin')}
+        setAppMode={setAppMode}
+        setMobileTab={setMobileTab}
+      />
 
       <StationDetail />
 

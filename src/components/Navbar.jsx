@@ -1,10 +1,10 @@
 import React from 'react';
-import { Zap, Search, User, LogOut, Plus, Moon, Sun, Settings, Car } from 'lucide-react';
+import { Zap, Search, User, LogOut, Plus, Moon, Sun, Settings, Car, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
 import { useTheme } from '../context/ThemeContext';
 
-const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin, appMode, setAppMode }) => {
+const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin, onOpenMenu, appMode, setAppMode }) => {
   const { user, isAuthenticated, logout } = useAuth();
   const { stations, filters, setFilters, setSelectedStation } = useStations();
   const { theme, toggleTheme } = useTheme();
@@ -44,11 +44,23 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin
     <nav className="navbar">
       {/* Top Row: Logo & Action Buttons (Icon Top + Text Below) */}
       <div className="navbar-top-row">
-        <div className="navbar-brand" onClick={handleHomeClick} style={{ cursor: 'pointer' }}>
-          <Zap className="brand-icon" size={24} />
-          <div className="brand-text">
-            <h1>EVTN</h1>
-            <span className="tagline">Recharge Tunisie</span>
+        <div className="navbar-left-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button 
+            type="button" 
+            className="btn-hamburger" 
+            onClick={(e) => { e.stopPropagation(); onOpenMenu?.(); }}
+            title="Menu & Paramètres"
+            aria-label="Menu"
+          >
+            <Menu size={22} />
+          </button>
+          
+          <div className="navbar-brand" onClick={handleHomeClick} style={{ cursor: 'pointer' }}>
+            <Zap className="brand-icon" size={24} />
+            <div className="brand-text">
+              <h1>EVTN</h1>
+              <span className="tagline">Recharge Tunisie</span>
+            </div>
           </div>
         </div>
         
