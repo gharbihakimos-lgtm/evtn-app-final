@@ -20,9 +20,10 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin
 
   return (
     <nav className="navbar">
+      {/* Top Row: Logo & Action Buttons (Icon Top + Text Below on Mobile) */}
       <div className="navbar-top-row">
         <div className="navbar-brand" onClick={handleHomeClick} style={{ cursor: 'pointer' }}>
-          <Zap className="brand-icon" size={26} />
+          <Zap className="brand-icon" size={24} />
           <div className="brand-text">
             <h1>EVTN</h1>
             <span className="tagline">Recharge Tunisie</span>
@@ -62,64 +63,77 @@ const Navbar = ({ onOpenAuthModal, onOpenStationForm, onOpenProfile, onOpenAdmin
             </button>
           </div>
 
-          <button className="btn-icon" onClick={toggleTheme} title="Changer le thème">
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          {/* Theme Toggle Button */}
+          <button 
+            className="btn-nav-item" 
+            onClick={toggleTheme} 
+            title="Changer le thème"
+          >
+            {theme === 'dark' ? <Sun size={17} /> : <Moon size={17} />}
+            <span className="btn-nav-label">Thème</span>
           </button>
 
+          {/* Add Station Button */}
           <button 
-            className="btn-primary btn-add-station" 
+            className="btn-nav-item btn-nav-add" 
             onClick={isAuthenticated ? onOpenStationForm : onOpenAuthModal}
             title="Ajouter une borne"
           >
-            <Plus size={18} />
-            <span className="desktop-only-inline">Ajouter</span>
+            <Plus size={17} />
+            <span className="btn-nav-label">Ajouter</span>
           </button>
 
+          {/* User / Profile / Login Section */}
           <div className="user-section">
             {isAuthenticated ? (
               <div className="user-profile-wrapper">
                 {user?.isAdmin && (
-                  <button className="btn-secondary btn-admin desktop-only" onClick={onOpenAdmin}>
-                    <Settings size={16} /> <span>Admin</span>
+                  <button className="btn-nav-item desktop-only" onClick={onOpenAdmin}>
+                    <Settings size={16} /> 
+                    <span className="btn-nav-label">Admin</span>
                   </button>
                 )}
-                <div className="user-profile clickable" onClick={onOpenProfile} title="Mon Profil">
-                  <div className="avatar">
-                    {user?.name?.charAt(0)?.toUpperCase() || <User size={16} />}
+                <div 
+                  className="btn-nav-item btn-nav-profile clickable" 
+                  onClick={onOpenProfile} 
+                  title="Mon Profil"
+                >
+                  <div className="avatar-mini">
+                    {user?.name?.charAt(0)?.toUpperCase() || <User size={15} />}
                   </div>
-                  <div className="user-info desktop-only">
-                    <div className="user-name-row">
-                      <span className="user-name">{user?.name}</span>
-                      <span className="user-points">🏆 {user?.points || 0} pts</span>
-                    </div>
-                    <div className="user-car-row">
-                      <Car size={12} />
-                      <span>{user?.vehicle?.type || 'Mon véhicule'}</span>
-                    </div>
-                  </div>
+                  <span className="btn-nav-label">Profil</span>
                 </div>
-                <button className="btn-icon desktop-only" onClick={(e) => { e.stopPropagation(); logout(); }} title="Déconnexion">
+                <button 
+                  className="btn-nav-item desktop-only" 
+                  onClick={(e) => { e.stopPropagation(); logout(); }} 
+                  title="Déconnexion"
+                >
                   <LogOut size={16} />
+                  <span className="btn-nav-label">Sortie</span>
                 </button>
               </div>
             ) : (
-              <button className="btn-secondary btn-connexion" onClick={onOpenAuthModal} title="Se connecter">
-                <User size={16} />
-                <span>Connexion</span>
+              <button 
+                className="btn-nav-item btn-nav-login" 
+                onClick={onOpenAuthModal} 
+                title="Se connecter"
+              >
+                <User size={17} />
+                <span className="btn-nav-label">Connexion</span>
               </button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Mobile Row 2: Mode Switch (Carte / Itinéraire) */}
+      {/* Row 2 (Mobile only): Mode Switch Carte / Itinéraire */}
       <div className="navbar-bottom-row mobile-only">
         <div className="mode-switch-mobile">
           <button 
             className={`btn-mode-mobile ${appMode === 'map' ? 'active' : ''}`}
             onClick={() => setAppMode('map')}
           >
-            🗺️ Carte
+            🗺️ Carte des Bornes
           </button>
           <button 
             className={`btn-mode-mobile ${appMode === 'route' ? 'active' : ''}`}

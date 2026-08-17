@@ -2048,6 +2048,79 @@ body {
   box-shadow: 0 2px 8px var(--primary-glow);
 }
 
+/* Vertical Nav Items (Icon Top + Text Below) */
+.btn-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.3rem 0.45rem;
+  min-width: 44px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  color: var(--text-main);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  gap: 0.15rem;
+  user-select: none;
+}
+
+.btn-nav-item:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--primary);
+}
+
+.btn-nav-item:active {
+  transform: scale(0.95);
+}
+
+.btn-nav-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--text-secondary);
+  letter-spacing: -0.01em;
+}
+
+.btn-nav-item:hover .btn-nav-label {
+  color: var(--text-main);
+}
+
+.btn-nav-add {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: var(--primary);
+}
+
+.btn-nav-add .btn-nav-label {
+  color: var(--primary);
+}
+
+.btn-nav-login {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #061A11;
+}
+
+.btn-nav-login .btn-nav-label {
+  color: #061A11;
+  font-weight: 700;
+}
+
+.avatar-mini {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: #061A11;
+  font-size: 0.75rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .btn-connexion {
   display: inline-flex;
   align-items: center;
