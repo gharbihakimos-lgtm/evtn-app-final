@@ -1,5 +1,5 @@
 import React from 'react';
-import { Zap, Search, User, LogOut, Plus, Moon, Sun, Settings, Car, Menu } from 'lucide-react';
+import { Zap, Search, User, LogOut, Plus, Moon, Sun, Settings, Menu } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useStations } from '../context/StationsContext';
 import { useTheme } from '../context/ThemeContext';

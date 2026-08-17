@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useStations } from '../context/StationsContext';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { POWER_OPTIONS, CONNECTOR_TYPES, AMENITIES_OPTIONS } from '../data/mockStations';
-import { X, MapPin, Camera } from 'lucide-react';
+import { X, Camera } from 'lucide-react';
 
 const CITIES = ['Tunis', 'Sfax', 'Sousse', 'Bizerte', 'Nabeul', 'Ariana', 'Gabès'];
 
@@ -233,11 +233,6 @@ const StationForm = ({ isOpen, onClose, initialData = null }) => {
           <div className="form-group">
             <label>Opérateur</label>
             <input type="text" name="operator" value={formData.operator} onChange={handleChange} />
-          </div>
-          
-          <div className="form-group">
-            <label>Référence (Optionnel)</label>
-            <input type="text" name="reference" value={formData.reference} onChange={handleChange} placeholder="ex: FR*CHG*E12345" />
           </div>
 
           <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem' }}>

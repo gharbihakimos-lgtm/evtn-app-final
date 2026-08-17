@@ -152,7 +152,7 @@ const AdminPage = ({ onExit }) => {
                         <div className="td-subtitle">{station.city}</div>
                       </td>
                       <td>
-                        <span className={`status-badge status-${station.status.replace(/\s+/g, '-').toLowerCase()}`}>
+                        <span className={`status-badge status-${(station.status || 'offline').replace(/\s+/g, '-').toLowerCase()}`}>
                           {station.status}
                         </span>
                       </td>
@@ -192,8 +192,8 @@ const AdminPage = ({ onExit }) => {
                     <tr key={u.id}>
                       <td>
                         <div className="user-profile-sm">
-                          <div className="avatar-sm">{u.name.charAt(0)}</div>
-                          <span>{u.name}</span>
+                          <div className="avatar-sm">{u.name?.charAt(0) || 'U'}</div>
+                          <span>{u.name || 'Utilisateur'}</span>
                         </div>
                       </td>
                       <td>{u.email}</td>
@@ -207,7 +207,7 @@ const AdminPage = ({ onExit }) => {
                         <button 
                           className="btn btn-secondary btn-sm" 
                           onClick={() => handleToggleRole(u.id, u.isAdmin)}
-                          disabled={u.id === user.id} // Prevent removing own admin role
+                          disabled={u.id === user?.id} // Prevent removing own admin role
                         >
                           {u.isAdmin ? 'Rétrograder' : 'Promouvoir'}
                         </button>

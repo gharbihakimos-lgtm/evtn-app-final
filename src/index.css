@@ -2524,7 +2524,7 @@ body {
 
 .btn-close-drawer:hover {
   color: var(--text-main);
-  border-color: var(--border-light);
+  border-color: var(--border);
 }
 
 .drawer-body {
