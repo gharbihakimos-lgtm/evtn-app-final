@@ -4,9 +4,14 @@ import { useAuth } from '../context/AuthContext';
 import StationCard from './StationCard';
 import { MapPinOff, Star, Car } from 'lucide-react';
 
-const Sidebar = ({ onOpenLegal }) => {
+const Sidebar = ({ onOpenLegal, onStationSelected }) => {
   const { filteredStations, selectedStation, setSelectedStation, filters, setFilters } = useStations();
   const { user } = useAuth();
+
+  const handleCardClick = (station) => {
+    setSelectedStation(station);
+    onStationSelected?.();
+  };
 
   return (
     <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -39,7 +44,7 @@ const Sidebar = ({ onOpenLegal }) => {
               key={station.id} 
               station={station} 
               isSelected={selectedStation?.id === station.id}
-              onClick={() => setSelectedStation(station)}
+              onClick={() => handleCardClick(station)}
             />
           ))
         ) : (

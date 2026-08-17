@@ -39,6 +39,23 @@ const ChangeView = ({ center, zoom }) => {
   return null;
 };
 
+const MapResizer = () => {
+  const map = useMap();
+  useEffect(() => {
+    map.invalidateSize();
+    const t1 = setTimeout(() => map.invalidateSize(), 150);
+    const t2 = setTimeout(() => map.invalidateSize(), 500);
+    const handleResize = () => map.invalidateSize();
+    window.addEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [map]);
+  return null;
+};
+
 const RoutingControl = ({ start, end }) => {
   const map = useMap();
   
@@ -125,6 +142,7 @@ const MapView = () => {
             : "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"}
         />
         <ZoomControl position="bottomright" />
+        <MapResizer />
         <LocateMeControl position={position} />
         
         {position && typeof position.lat === 'number' && typeof position.lng === 'number' && !isNaN(position.lat) && !isNaN(position.lng) && (

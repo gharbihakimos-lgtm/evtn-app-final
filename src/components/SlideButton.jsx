@@ -14,7 +14,9 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
 
   const handleDragMove = (clientX) => {
     if (!isDragging || !containerRef.current) return;
-    const maxDrag = containerRef.current.offsetWidth - 60; // 56px thumb + 4px margin
+    const thumbWidth = 44;
+    const padding = 6;
+    const maxDrag = containerRef.current.offsetWidth - thumbWidth - (padding * 2);
     let newX = clientX - startXRef.current;
     
     if (newX < 0) newX = 0;
@@ -22,17 +24,17 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
     
     setDragX(newX);
     
-    // Trigger confirm when reached the end (95% threshold to make it easier)
-    if (newX >= maxDrag * 0.90) {
+    // Trigger confirm when reaching 85% of slider
+    if (newX >= maxDrag * 0.85) {
       setIsDragging(false);
-      setDragX(0); // Reset position immediately
+      setDragX(0); // Reset position
       onConfirm?.();
     }
   };
 
   const handleDragEnd = () => {
     setIsDragging(false);
-    setDragX(0); // Snap back if didn't reach the end
+    setDragX(0); // Snap back
   };
 
   useEffect(() => {
@@ -47,8 +49,9 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
     };
 
     const handleTouchMoveObj = (e) => {
-      // Prevent scrolling while dragging the slider
+      // Prevent browser / system gestures while dragging the slider
       if (e.cancelable) e.preventDefault();
+      e.stopPropagation();
       handleMove(e);
     };
 
@@ -79,11 +82,17 @@ const SlideButton = ({ onConfirm, text, icon: Icon, active }) => {
       <div className="slide-btn-text">{text}</div>
       <div 
         className="slide-btn-thumb"
-        style={{ transform: `translateX(${dragX}px)`, transition: isDragging ? 'none' : 'transform 0.3s ease' }}
+        style={{ 
+          transform: `translateX(${dragX}px)`, 
+          transition: isDragging ? 'none' : 'transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1)' 
+        }}
         onMouseDown={(e) => handleDragStart(e.clientX)}
-        onTouchStart={(e) => e.touches?.[0] && handleDragStart(e.touches[0].clientX)}
+        onTouchStart={(e) => {
+          e.stopPropagation();
+          if (e.touches?.[0]) handleDragStart(e.touches[0].clientX);
+        }}
       >
-        {Icon ? <Icon size={20} /> : <ChevronRight size={20} />}
+        {Icon ? <Icon size={18} /> : <ChevronRight size={18} />}
       </div>
     </div>
   );
