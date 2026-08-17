@@ -120,39 +120,62 @@ export function StationsProvider({ children }) {
     setFilteredStations(result);
   }, [stations, filters, user]);
 
-  const updateStationStatus = useCallback(async (stationId, newStatus, userName, busyUntil = null) => {
-    if (!isFirebaseConfigured) {
-      setFirebaseStations(prev => prev.map(s => {
-        if (s.id === stationId) {
-          return {
-            ...s,
-            status: newStatus,
-            lastUpdate: new Date().toISOString(),
-            updatedBy: userName,
-            busyUntil
-          };
+  const updateStationStatus = useCallback(async (stationId, newStatus, userName = 'Anonyme', busyUntil = null) => {
+    // 1. Update local state immediately so UI changes in real time
+    setFirebaseStations(prev => {
+      const exists = prev.some(s => s.id === stationId);
+      if (exists) {
+        return prev.map(s => s.id === stationId ? { ...s, status: newStatus, lastUpdate: new Date().toISOString(), updatedBy: userName, busyUntil } : s);
+      } else {
+        const base = stations.find(s => s.id === stationId);
+        if (base) {
+          return [...prev, { ...base, status: newStatus, lastUpdate: new Date().toISOString(), updatedBy: userName, busyUntil }];
         }
-        return s;
-      }));
-      return;
-    }
+        return prev;
+      }
+    });
 
-    const updateData = {
-      status: newStatus,
-      lastUpdate: new Date().toISOString(),
-      updatedBy: userName
-    };
-    if (busyUntil !== undefined) {
-      updateData.busyUntil = busyUntil;
-    }
+    // 2. Also update selectedStation directly so the open detail view reflects it instantly
+    setSelectedStation(prev => {
+      if (prev && prev.id === stationId) {
+        return {
+          ...prev,
+          status: newStatus,
+          lastUpdate: new Date().toISOString(),
+          updatedBy: userName,
+          busyUntil
+        };
+      }
+      return prev;
+    });
 
-    const stationRef = doc(db, 'stations', stationId);
-    try {
-      await updateDoc(stationRef, updateData);
-    } catch (err) {
-      console.error(err);
+    // 3. Persist to Firestore if configured
+    if (isFirebaseConfigured) {
+      const updateData = {
+        status: newStatus,
+        lastUpdate: new Date().toISOString(),
+        updatedBy: userName
+      };
+      if (busyUntil !== undefined) {
+        updateData.busyUntil = busyUntil;
+      }
+
+      const stationRef = doc(db, 'stations', stationId);
+      try {
+        await updateDoc(stationRef, updateData);
+      } catch (err) {
+        // If document doesn't exist yet, create it with setDoc merge
+        try {
+          const base = stations.find(s => s.id === stationId);
+          if (base) {
+            await setDoc(stationRef, { ...base, ...updateData }, { merge: true });
+          }
+        } catch (setErr) {
+          console.error("Firestore status update error:", setErr);
+        }
+      }
     }
-  }, []);
+  }, [stations]);
 
   // Check for expired Check-ins
   useEffect(() => {

@@ -284,26 +284,14 @@ const StationDetail = () => {
             icon={Plug}
             onConfirm={() => {
               if (station.status === 'available') {
-                setShowCheckIn(true);
-              } else if (station.status === 'busy') {
+                handleStatusUpdate('busy');
+                if (addPoints) addPoints(5);
+              } else {
                 handleStatusUpdate('available');
               }
             }}
           />
         </div>
-
-        {showCheckIn && (
-          <div className="checkin-menu" style={{ marginBottom: '1.5rem', border: '1px solid var(--primary)' }}>
-            <h4 style={{ margin: '0 0 0.5rem', color: 'var(--text-main)', fontSize: '0.9rem' }}>Combien de temps allez-vous rester ?</h4>
-            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              <button className="btn-secondary" onClick={() => handleCheckIn(15)}>15 min</button>
-              <button className="btn-secondary" onClick={() => handleCheckIn(30)}>30 min</button>
-              <button className="btn-secondary" onClick={() => handleCheckIn(60)}>1 heure</button>
-              <button className="btn-secondary" onClick={() => handleCheckIn(120)}>2 heures</button>
-              <button className="btn-primary" onClick={() => setShowCheckIn(false)} style={{ marginLeft: 'auto', background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-main)' }}>Annuler</button>
-            </div>
-          </div>
-        )}
 
         <div className="detail-section">
           <h3>Informations</h3>

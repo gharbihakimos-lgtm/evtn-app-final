@@ -2305,16 +2305,16 @@ body {
 }
 
 .slide-btn-container.active {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: var(--primary);
+  background: rgba(245, 158, 11, 0.18);
+  border-color: #F59E0B;
 }
 
 .slide-btn-text {
   position: absolute;
   width: 100%;
   text-align: center;
-  color: var(--text-secondary);
-  font-weight: 600;
+  color: var(--primary);
+  font-weight: 700;
   font-size: 0.85rem;
   pointer-events: none;
   z-index: 1;
@@ -2322,7 +2322,7 @@ body {
 }
 
 .slide-btn-container.active .slide-btn-text {
-  color: var(--primary);
+  color: #F59E0B;
 }
 
 .slide-btn-thumb {
@@ -2330,24 +2330,25 @@ body {
   left: 6px;
   width: 40px;
   height: 40px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
+  background: var(--primary);
+  border: 1px solid var(--primary);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-main);
+  color: #061A11;
   cursor: grab;
   z-index: 2;
-  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 3px 12px var(--primary-glow);
   touch-action: none;
 }
 
 .slide-btn-container.active .slide-btn-thumb {
-  background: var(--primary);
-  color: #061A11;
+  background: #F59E0B;
+  color: #1a0e00;
   font-weight: 700;
-  border-color: var(--primary);
+  border-color: #F59E0B;
+  box-shadow: 0 3px 12px rgba(245, 158, 11, 0.5);
 }
 
 .slide-btn-thumb:active {
