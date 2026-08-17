@@ -2050,13 +2050,14 @@ body {
 
 /* Vertical Nav Items (Icon Top + Text Below) */
 .btn-nav-item {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 0.3rem 0.45rem;
-  min-width: 44px;
-  border-radius: 8px;
+  padding: 0.35rem 0.5rem;
+  min-width: 48px;
+  height: 44px;
+  border-radius: 10px;
   background: var(--bg-secondary);
   border: 1px solid var(--border);
   color: var(--text-main);
@@ -2064,6 +2065,14 @@ body {
   transition: all 0.2s ease;
   gap: 0.15rem;
   user-select: none;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  z-index: 10;
+}
+
+.btn-nav-item * {
+  pointer-events: none;
 }
 
 .btn-nav-item:hover {
