@@ -94,21 +94,6 @@ body {
   overflow: hidden;
 }
 
-/* Navbar */
-.navbar {
-  position: sticky;
-  top: 0;
-  z-index: 1100;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 1.5rem;
-  padding-top: env(safe-area-inset-top, 0px);
-  min-height: 64px;
-  background: var(--bg-navbar);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--glass-border);
-}
 .brand-text {
   display: flex;
   flex-direction: column;
