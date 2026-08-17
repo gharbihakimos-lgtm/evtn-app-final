@@ -7,7 +7,7 @@ import {
   signOut, 
   onAuthStateChanged,
   updateProfile,
-  signInWithRedirect,
+  signInWithPopup,
   GoogleAuthProvider,
   getRedirectResult
 } from 'firebase/auth';
@@ -128,7 +128,7 @@ export function AuthProvider({ children }) {
       return;
     }
     const provider = new GoogleAuthProvider();
-    await signInWithRedirect(auth, provider);
+    await signInWithPopup(auth, provider);
   };
 
   const logout = async () => {
