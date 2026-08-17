@@ -8,6 +8,10 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg'],
+      workbox: {
+        skipWaiting: true,
+        clientsClaim: true,
+      },
       manifest: {
         name: 'EVTN - Recharge Tunisie',
         short_name: 'EVTN',
@@ -32,3 +36,4 @@ export default defineConfig({
     })
   ]
 });
+

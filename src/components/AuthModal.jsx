@@ -62,59 +62,61 @@ const AuthModal = ({ isOpen, onClose }) => {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal auth-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="btn-close" onClick={onClose}><X size={20} /></button>
+        <div className="modal-body" style={{ position: 'relative' }}>
+          <button className="btn-close" onClick={onClose} style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 10 }}><X size={20} /></button>
         
-        <div className="auth-tabs">
-          <button 
-            className={`tab-btn ${activeTab === 'login' ? 'active' : ''}`}
-            onClick={() => setActiveTab('login')}
-          >
-            Connexion
-          </button>
-          <button 
-            className={`tab-btn ${activeTab === 'signup' ? 'active' : ''}`}
-            onClick={() => setActiveTab('signup')}
-          >
-            Inscription
+          <div className="auth-tabs">
+            <button 
+              className={`tab-btn ${activeTab === 'login' ? 'active' : ''}`}
+              onClick={() => setActiveTab('login')}
+            >
+              Connexion
+            </button>
+            <button 
+              className={`tab-btn ${activeTab === 'signup' ? 'active' : ''}`}
+              onClick={() => setActiveTab('signup')}
+            >
+              Inscription
+            </button>
+          </div>
+
+          {error && <div className="error-message">{error}</div>}
+
+          <form onSubmit={handleSubmit} className="auth-form">
+            {activeTab === 'signup' && (
+              <div className="form-group">
+                <label>Nom complet</label>
+                <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+              </div>
+            )}
+            <div className="form-group">
+              <label>Email</label>
+              <input type="email" name="email" value={formData.email} onChange={handleChange} required />
+            </div>
+            <div className="form-group">
+              <label>Mot de passe</label>
+              <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+            </div>
+            {activeTab === 'signup' && (
+              <div className="form-group">
+                <label>Confirmer le mot de passe</label>
+                <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
+              </div>
+            )}
+
+            <button type="submit" className="btn-primary full-width">
+              {activeTab === 'login' ? 'Se connecter' : "S'inscrire"}
+            </button>
+          </form>
+
+          <div className="auth-divider">
+            <span>Ou</span>
+          </div>
+
+          <button className="btn-google full-width" onClick={handleGoogleLogin}>
+            Continuer avec Google
           </button>
         </div>
-
-        {error && <div className="error-message">{error}</div>}
-
-        <form onSubmit={handleSubmit} className="auth-form">
-          {activeTab === 'signup' && (
-            <div className="form-group">
-              <label>Nom complet</label>
-              <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-            </div>
-          )}
-          <div className="form-group">
-            <label>Email</label>
-            <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-          </div>
-          <div className="form-group">
-            <label>Mot de passe</label>
-            <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-          </div>
-          {activeTab === 'signup' && (
-            <div className="form-group">
-              <label>Confirmer le mot de passe</label>
-              <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
-            </div>
-          )}
-
-          <button type="submit" className="btn-primary full-width">
-            {activeTab === 'login' ? 'Se connecter' : "S'inscrire"}
-          </button>
-        </form>
-
-        <div className="auth-divider">
-          <span>Ou</span>
-        </div>
-
-        <button className="btn-google full-width" onClick={handleGoogleLogin}>
-          Continuer avec Google
-        </button>
       </div>
     </div>
   );
