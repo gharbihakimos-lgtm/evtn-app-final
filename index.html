@@ -13,6 +13,28 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      // Cache bust v2 — force clear old PWA caches
+      (function() {
+        var CACHE_VERSION = 'v2-20260817';
+        if (localStorage.getItem('evtn_cache_version') !== CACHE_VERSION) {
+          if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+              registrations.forEach(function(r) { r.unregister(); });
+            });
+          }
+          if ('caches' in window) {
+            caches.keys().then(function(names) {
+              names.forEach(function(name) { caches.delete(name); });
+            });
+          }
+          localStorage.setItem('evtn_cache_version', CACHE_VERSION);
+          if (performance.navigation && performance.navigation.type !== 1) {
+            location.reload();
+          }
+        }
+      })();
+    </script>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>
