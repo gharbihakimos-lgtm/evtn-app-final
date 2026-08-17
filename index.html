@@ -12,6 +12,15 @@
     <title>EVTN — Bornes de Recharge Tunisie</title>
   </head>
   <body>
+    <script>
+      window.onerror = function(msg, url, line, col, error) {
+        alert("CRASH: " + msg + "\nLine: " + line);
+        return false;
+      };
+      window.addEventListener('unhandledrejection', function(event) {
+        alert("PROMISE REJECTION: " + event.reason);
+      });
+    </script>
     <div id="root"></div>
     <script>
       // Cache bust v2 — force clear old PWA caches
